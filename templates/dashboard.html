@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+
+{% block title %}Semester Dashboard - Grade Predictor{% endblock %}
+
+{% block content %}
+
+<h1 class="title">Semester Dashboard</h1>
+
+<div class="cgpa-card">
+
+<h2>CGPA : {{cgpa}}</h2>
+
+<div class="progress">
+
+<div id="cgpa-data" data-cgpa="{{cgpa}}" class="progress-bar" style="width: {{cgpa*10}}%">
+{{cgpa}} / 10
+</div>
+
+</div>
+
+</div>
+
+<div style="text-align: center; margin-bottom: 40px;">
+<button class="calc-btn" onclick="document.getElementById('goal-planner').style.display='block'" style="background: var(--primary); display: inline-block; width: auto; padding: 10px 24px;">🎯 Set Target CGPA Goal</button>
+</div>
+
+<div id="goal-planner" style="display:none; margin-bottom: 40px; background: #EEF2FF; padding: 25px; border-radius: 12px; border: 2px dashed #C7D2FE; text-align: center;">
+<label style="font-weight: 600; color: var(--primary); font-size: 1.1rem; margin-right: 10px;">Target CGPA: </label>
+<input type="number" id="target_cgpa" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); width: 80px; font-size: 1.1rem; text-align: center;" min="0" max="10" step="0.1" value="9.0">
+<button class="calc-btn" onclick="calculateGoal()" style="margin-left: 10px; display: inline-block; width: auto;">Calculate Focus</button>
+<p id="goal-result" style="margin-top: 15px; font-weight: 500; text-align: left; padding: 15px; background: white; border-radius: 8px; font-size: 1.05rem;"></p>
+</div>
+
+<div class="card" style="margin-bottom: 40px;">
+    <h2>Add New Subject</h2>
+    <form method="POST" action="{{ url_for('add_subject') }}" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Subject Code</label>
+            <input type="text" name="subject_code" placeholder="e.g. CS101" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        <div style="flex: 2; min-width: 200px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Subject Name</label>
+            <input type="text" name="subject_name" placeholder="Introduction to Computer Science" required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        <div style="flex: 0.5; min-width: 100px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Credits</label>
+            <input type="number" name="credits" min="1" max="10" required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+        </div>
+        <button type="submit" class="calc-btn" style="width: auto; padding: 10px 24px;">Add</button>
+    </form>
+</div>
+
+<div class="subjects-grid">
+
+{% for r in results %}
+
+<div class="subject-card">
+
+<h3>{{r.subject.subject_name}}</h3>
+
+<div class="subject-info">
+
+<p><b>Score</b> : {{r.score}}</p>
+
+<p>
+<b>Grade</b> :
+<span class="grade grade-{{r.grade.replace('+','plus')}}">
+{{r.grade}}
+</span>
+</p>
+
+<p><b>GPA</b> : {{r.gpa}}</p>
+
+</div>
+
+<a class="open-btn" href="/subject/{{r.subject.id}}">
+Open Subject
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+<script>
+function calculateGoal() {
+    let target = parseFloat(document.getElementById('target_cgpa').value);
+    let current_cgpa = parseFloat(document.getElementById('cgpa-data').getAttribute('data-cgpa')) || 0;
+    
+    let res = document.getElementById('goal-result');
+    if (isNaN(target) || target > 10 || target < 0) {
+        res.innerHTML = "❌ Please enter a valid CGPA between 0 and 10.";
+        res.style.color = "var(--grade-f)";
+        return;
+    }
+    
+    if (target <= current_cgpa) {
+        res.innerHTML = "✅ You have already achieved or surpassed this goal!";
+        res.style.color = "var(--grade-o)";
+        return;
+    }
+    
+    let deficit = target - current_cgpa;
+    res.innerHTML = "🔥 To reach a <b>" + target + "</b> CGPA, you need to improve your overall average by <b>" + deficit.toFixed(2) + "</b> points across your subjects. <br><br>👉 Focus heavily on the subjects listed below where you have a <b>B</b> or <b>B+</b> to boost your total credit points easily!";
+    res.style.color = "var(--primary-hover)";
+}
+</script>
+
+{% endblock %}

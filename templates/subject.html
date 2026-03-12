@@ -1,0 +1,266 @@
+{% extends "layout.html" %}
+
+{% block title %}{{subject.subject_name}} - Grade Predictor{% endblock %}
+
+{% block content %}
+
+<script>
+
+function addCA(){
+
+let container=document.getElementById("ca-section")
+
+let div=document.createElement("div")
+
+div.className="row"
+
+div.innerHTML=`
+<input type="number" name="ca_marks[]" placeholder="Marks">
+/
+<input type="number" name="ca_max[]" placeholder="Max">
+<button type="button" onclick="this.parentElement.remove()">Delete</button>
+`
+
+container.appendChild(div)
+
+}
+
+let isSandbox = false;
+function toggleSandbox() {
+    isSandbox = !isSandbox;
+    let btn = document.getElementById("sandboxToggle");
+    let sliders = document.querySelectorAll(".sandbox-slider");
+    let inputs = document.querySelectorAll(".comp-mark, .mark-input");
+    
+    if(isSandbox) {
+        btn.innerHTML = "❌ Exit Sandbox";
+        btn.style.background = "var(--grade-f)";
+        sliders.forEach(s => s.style.display = "block");
+        inputs.forEach(i => i.removeAttribute("readonly"));
+    } else {
+        btn.innerHTML = "🕹️ Sandbox Mode";
+        btn.style.background = "var(--grade-a)";
+        sliders.forEach(s => s.style.display = "none");
+        location.reload(); // Quick reset by reloading
+    }
+}
+
+function sandboxRecalculate() {
+    if(!isSandbox) return;
+    let totalScore = 0;
+    
+    // Components (e.g., Midterm, Endterm)
+    let compMarks = document.querySelectorAll(".comp-mark");
+    compMarks.forEach(input => {
+        let max = parseFloat(input.getAttribute("data-max"));
+        let weight = parseFloat(input.getAttribute("data-weight"));
+        let marks = parseFloat(input.value) || 0;
+        if(max > 0) {
+            totalScore += (marks / max) * weight;
+        }
+    });
+    
+    // CA Component Total
+    let caInput = document.querySelector(".mark-input");
+    if(caInput) {
+        let caMax = parseFloat(document.getElementById("ca_max_val").innerText) || 0;
+        let caWeight = parseFloat(document.getElementById("ca_weight_val").innerText) || 0;
+        let caMarks = parseFloat(caInput.value) || 0;
+        if(caMax > 0) {
+            totalScore += (caMarks / caMax) * caWeight;
+        }
+    }
+    
+    totalScore = totalScore.toFixed(2);
+    document.getElementById("live_score").innerText = totalScore;
+    
+    let grade = "F"; 
+    let colorClass = "grade-F";
+    let score = parseFloat(totalScore);
+    
+    if (score >= 90) { grade = "O"; colorClass = "grade-O"; }
+    else if (score >= 80) { grade = "A+"; colorClass = "grade-Aplus"; }
+    else if (score >= 70) { grade = "A"; colorClass = "grade-A"; }
+    else if (score >= 60) { grade = "B+"; colorClass = "grade-Bplus"; }
+    else if (score >= 50) { grade = "B"; colorClass = "grade-B"; }
+    
+    let span = document.getElementById("live_grade");
+    span.innerText = grade;
+    span.className = "grade " + colorClass;
+}
+
+</script>
+
+<style>
+.sandbox-slider {
+    margin-top: 10px;
+    appearance: none;
+    height: 8px;
+    background: #e0e7ff;
+    border-radius: 5px;
+    outline: none;
+}
+.sandbox-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
+</style>
+
+<div id="top"></div>
+
+<h1>{{subject.subject_name}}</h1>
+
+<div style="display: flex; gap: 10px; align-items: center;">
+<a href="?edit=1" class="edit-btn-link">
+<button type="button">Edit Marks</button>
+</a>
+<button type="button" id="sandboxToggle" class="calc-btn" style="background: var(--grade-a); border: none;" onclick="toggleSandbox()">🕹️ Sandbox Mode</button>
+</div>
+
+<br><br>
+
+<form method="POST" id="marks-form">
+
+<div class="card">
+
+<h2>Components</h2>
+
+{% for comp in components if comp.component_name!="Continuous Assessment" %}
+
+<div class="row">
+
+<label>{{comp.component_name}}</label>
+
+<input
+type="number"
+name="marks_{{comp.id}}"
+class="comp-mark"
+data-weight="{{comp.weight}}"
+data-max="{{comp.max_marks}}"
+value="{{entered_marks.get(comp.id,'')}}"
+min="0"
+max="{{comp.max_marks}}"
+{% if not edit_mode %}readonly{% endif %}
+oninput="sandboxRecalculate()"
+>
+
+<span>/ {{comp.max_marks}}</span>
+<input type="range" class="sandbox-slider" style="display:none; width: 100%;" min="0" max="{{comp.max_marks}}" value="{{entered_marks.get(comp.id, 0)}}" oninput="this.previousElementSibling.previousElementSibling.value = this.value; sandboxRecalculate();">
+
+</div>
+
+{% endfor %}
+
+{% for comp in components if comp.component_name=="Continuous Assessment" %}
+<div class="row">
+<label>Continuous Assessment (Total)</label>
+<input
+type="number"
+value="{{ca_total}}"
+class="mark-input"
+readonly
+>
+<span>/ <span id="ca_max_val">{{ca_max}}</span> (Weight: <span id="ca_weight_val">{{comp.weight}}</span>%)</span>
+<input type="range" class="sandbox-slider" style="display:none; width: 100%;" min="0" max="{{ca_max}}" value="{{ca_total if ca_total else 0}}" oninput="this.previousElementSibling.previousElementSibling.value = this.value; sandboxRecalculate();">
+</div>
+{% endfor %}
+
+</div>
+
+
+<div class="card">
+
+<h2>Continuous Assessment</h2>
+
+<div id="ca-section">
+
+{% if ca_data and ca_data|length > 0 %}
+{% for ca in ca_data %}
+<div class="row">
+<input type="number" name="ca_marks[]" placeholder="Marks" value="{{ca.marks}}" {% if not edit_mode %}readonly{% endif %}>
+/
+<input type="number" name="ca_max[]" placeholder="Max" value="{{ca.max}}" {% if not edit_mode %}readonly{% endif %}>
+<button type="button" onclick="this.parentElement.remove()" {% if not edit_mode %}disabled{% endif %}>Delete</button>
+</div>
+{% endfor %}
+{% else %}
+<div class="row">
+<input type="number" name="ca_marks[]" placeholder="Marks" {% if not edit_mode %}readonly{% endif %}>
+/
+<input type="number" name="ca_max[]" placeholder="Max" {% if not edit_mode %}readonly{% endif %}>
+<button type="button" onclick="this.parentElement.remove()" {% if not edit_mode %}disabled{% endif %}>Delete</button>
+</div>
+{% endif %}
+
+</div>
+
+<br>
+
+{% if edit_mode %}
+<button type="button" onclick="addCA()">+ Add CA</button>
+<br><br>
+<button class="calc-btn" form="marks-form">Save CA</button>
+{% endif %}
+
+</div>
+
+
+<br>
+
+{% if edit_mode %}
+<button class="calc-btn" form="marks-form">Save Endterm/Midterm & Calculate</button>
+{% endif %}
+
+</form>
+
+{% if score is not none %}
+
+<div class="result-card">
+
+<h2>Score : <span id="live_score">{{score}}</span></h2>
+
+<h2>
+Grade :
+<span id="live_grade" class="grade grade-{{grade.replace('+','plus')}}">
+{{grade}}
+</span>
+</h2>
+
+<h3>Grade Prediction</h3>
+
+<ul>
+{% for p in prediction %}
+<li>{{p}}</li>
+{% endfor %}
+</ul>
+
+</div>
+
+{% endif %}
+
+<br>
+
+<a href="/" class="back-link">
+  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+  Back to Dashboard
+</a>
+
+</div>
+<script>
+
+window.onload = function() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
+
+</script>
+
+{% endblock %}
