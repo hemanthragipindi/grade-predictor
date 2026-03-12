@@ -1,8 +1,11 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html>
 
-{% block title %}{{subject.subject_name}} - Grade Predictor{% endblock %}
+<head>
 
-{% block content %}
+<title>{{subject.subject_name}}</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 <script>
 
@@ -110,7 +113,11 @@ function sandboxRecalculate() {
 }
 </style>
 
+</head>
+
+<body>
 <div id="top"></div>
+<div class="container">
 
 <h1>{{subject.subject_name}}</h1>
 
@@ -263,4 +270,6 @@ window.onload = function() {
 
 </script>
 
-{% endblock %}
+</body>
+
+</html>

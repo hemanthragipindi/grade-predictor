@@ -1,8 +1,17 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html>
 
-{% block title %}Semester Dashboard - Grade Predictor{% endblock %}
+<head>
 
-{% block content %}
+<title>Semester Dashboard</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
 
 <h1 class="title">Semester Dashboard</h1>
 
@@ -31,24 +40,6 @@
 <p id="goal-result" style="margin-top: 15px; font-weight: 500; text-align: left; padding: 15px; background: white; border-radius: 8px; font-size: 1.05rem;"></p>
 </div>
 
-<div class="card" style="margin-bottom: 40px;">
-    <h2>Add New Subject</h2>
-    <form method="POST" action="{{ url_for('add_subject') }}" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 150px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Subject Code</label>
-            <input type="text" name="subject_code" placeholder="e.g. CS101" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
-        </div>
-        <div style="flex: 2; min-width: 200px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Subject Name</label>
-            <input type="text" name="subject_name" placeholder="Introduction to Computer Science" required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
-        </div>
-        <div style="flex: 0.5; min-width: 100px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Credits</label>
-            <input type="number" name="credits" min="1" max="10" required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
-        </div>
-        <button type="submit" class="calc-btn" style="width: auto; padding: 10px 24px;">Add</button>
-    </form>
-</div>
 
 <div class="subjects-grid">
 
@@ -109,4 +100,6 @@ function calculateGoal() {
 }
 </script>
 
-{% endblock %}
+</body>
+
+</html>
