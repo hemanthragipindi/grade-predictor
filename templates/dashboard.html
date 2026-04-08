@@ -1,105 +1,157 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
+{% block title %}Architecture Overview - Nexora{% endblock %}
 
-<title>Semester Dashboard</title>
+{% block content %}
+<div class="container animate-in">
+    <!-- Header: Strategic Tier -->
+    <div style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <div style="padding: 4px 12px; background: {{ gpa_tier.color }}20; color: {{ gpa_tier.color }}; border-radius: 20px; font-size: 0.7rem; font-weight: 850; letter-spacing: 1px; text-transform: uppercase;">
+                    IDENTIFIED: {{ gpa_tier.tier }}
+                </div>
+            </div>
+            <h1 class="page-title" style="margin: 0; font-size: 2.2rem; font-weight: 850; letter-spacing: -1px;">Nexus Overview</h1>
+            <p style="color: var(--text-muted); margin-top: 5px;">{{ gpa_tier.message }}</p>
+        </div>
+        <div id="ai-slogan-container" style="text-align: right; max-width: 300px;">
+            <p id="ai-slogan" style="font-size: 0.9rem; font-weight: 650; color: var(--primary); margin: 0; font-style: italic;">"Sync Your Strategy. Own Your Success."</p>
+            <button onclick="refreshSlogan()" style="background: none; border: none; font-size: 0.65rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; margin-top: 5px;">Refresh Slogan</button>
+        </div>
+    </div>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Tier Strategy Card -->
+    <div class="panel" style="background: linear-gradient(135deg, {{ gpa_tier.color }}10, transparent); border-left: 4px solid {{ gpa_tier.color }}; margin-bottom: 30px; padding: 30px;">
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; align-items: center;">
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 5px;">Current Strategy</div>
+                <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--text-main); margin: 0;">{{ gpa_tier.strategy }}</h3>
+            </div>
+            <div>
+                <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); margin: 0;"><strong>Intelligence Directive:</strong> {{ gpa_tier.focus }}</p>
+            </div>
+        </div>
+    </div>
 
-</head>
+    <!-- Main Architecture Grid -->
+    <div class="metrics-row" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 40px;">
+        <!-- CGPA Hub -->
+        <div class="panel" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Network CGPA</div>
+            <div style="font-size: 4rem; font-weight: 900; color: var(--primary); line-height: 1;">{{ cgpa }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; font-weight: 600;">/ 10.0 Baseline</div>
+        </div>
 
-<body>
+        <!-- Matrix Health -->
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Matrix Integrity</div>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                <div style="font-size: 2rem; font-weight: 850; color: var(--text-main);">{{ subject_count }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Active Modules</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 2rem; font-weight: 850; color: {% if high_risk_count > 0 %}var(--grade-f){% else %}var(--grade-o){% endif %};">{{ high_risk_count }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Identified Risks</div>
+            </div>
+        </div>
 
-<div class="container">
+        <!-- System Load -->
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Cognitive Load</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">{{ cog_load.status }}</span>
+                <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700;">{{ identity }}</span>
+            </div>
+            <div style="height: 6px; background: #eef1f5; border-radius: 3px; overflow: hidden;">
+                <div style="width: {% if cog_load.status == 'Optimal' %}40{% elif cog_load.status == 'Moderate' %}70{% else %}95{% endif %}%; height: 100%; background: var(--primary);"></div>
+            </div>
+        </div>
+    </div>
 
-<h1 class="title">Semester Dashboard</h1>
+    <!-- ACTIVE MATRIX PORTAL -->
+    <div style="margin-bottom: 40px;">
+        <a href="{{ url_for('active_matrix') }}" style="text-decoration: none; display: block;">
+            <div class="panel" style="padding: 40px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; border: none; box-shadow: 0 20px 40px rgba(30, 41, 59, 0.2); transition: transform 0.3s ease;">
+                <div>
+                    <h2 style="font-size: 1.8rem; font-weight: 850; margin: 0; letter-spacing: -0.5px;">Enter Active Course Matrix</h2>
+                    <p style="opacity: 0.8; margin-top: 5px; font-weight: 500;">Manage detailed subjects, track sensitivity, and optimize performance vectors.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="30" height="30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </div>
+            </div>
+        </a>
+    </div>
 
-<div class="cgpa-card">
+    <!-- Daily Intel Feed -->
+    <div class="main-grid" style="grid-template-columns: 2fr 1fr;">
+        <div class="panel">
+            <h3 class="panel-title" style="text-align: left; color: var(--text-main);">System Intel Feed</h3>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                {% for insight in meta_insights %}
+                <div style="display: flex; gap: 15px; border-bottom: 1px solid #eef1f5; padding-bottom: 15px;">
+                    <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                    <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">{{ insight }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-<h2>CGPA : {{cgpa}}</h2>
-
-<div class="progress">
-
-<div id="cgpa-data" data-cgpa="{{cgpa}}" class="progress-bar" style="width: {{cgpa*10}}%">
-{{cgpa}} / 10
-</div>
-
-</div>
-
-</div>
-
-<div style="text-align: center; margin-bottom: 40px;">
-<button class="calc-btn" onclick="document.getElementById('goal-planner').style.display='block'" style="background: var(--primary); display: inline-block; width: auto; padding: 10px 24px;">🎯 Set Target CGPA Goal</button>
-</div>
-
-<div id="goal-planner" style="display:none; margin-bottom: 40px; background: #EEF2FF; padding: 25px; border-radius: 12px; border: 2px dashed #C7D2FE; text-align: center;">
-<label style="font-weight: 600; color: var(--primary); font-size: 1.1rem; margin-right: 10px;">Target CGPA: </label>
-<input type="number" id="target_cgpa" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); width: 80px; font-size: 1.1rem; text-align: center;" min="0" max="10" step="0.1" value="9.0">
-<button class="calc-btn" onclick="calculateGoal()" style="margin-left: 10px; display: inline-block; width: auto;">Calculate Focus</button>
-<p id="goal-result" style="margin-top: 15px; font-weight: 500; text-align: left; padding: 15px; background: white; border-radius: 8px; font-size: 1.05rem;"></p>
-</div>
-
-
-<div class="subjects-grid">
-
-{% for r in results %}
-
-<div class="subject-card">
-
-<h3>{{r.subject.subject_name}}</h3>
-
-<div class="subject-info">
-
-<p><b>Score</b> : {{r.score}}</p>
-
-<p>
-<b>Grade</b> :
-<span class="grade grade-{{r.grade.replace('+','plus')}}">
-{{r.grade}}
-</span>
-</p>
-
-<p><b>GPA</b> : {{r.gpa}}</p>
-
-</div>
-
-<a class="open-btn" href="/subject/{{r.subject.id}}">
-Open Subject
-</a>
-
-</div>
-
-{% endfor %}
-
-</div>
-
+        <div class="panel">
+            <h3 class="panel-title" style="text-align: left; color: var(--text-main);">Assessment Integrity Matrix</h3>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                {% if assessments %}
+                    {% for a in assessments[:4] %}
+                    <div style="padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #eef1f5;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">{{ a.subject_code }} - Unit {{ a.unit }}</span>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">{{ a.progress }}%</span>
+                        </div>
+                        <div style="height: 5px; background: #e2e8f0; border-radius: 2.5px; overflow: hidden;">
+                            <div style="width: {{ a.progress }}%; height: 100%; background: var(--primary); box-shadow: 0 0 5px var(--primary)40;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">No active assessments. Start a new unit to track progress.</p>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('continue_assessment') }}" style="display: block; text-align: center; font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-top: 15px; text-decoration: none;">Manage All Assessments →</a>
+        </div>
+    </div>
 </div>
 
 <script>
-function calculateGoal() {
-    let target = parseFloat(document.getElementById('target_cgpa').value);
-    let current_cgpa = parseFloat(document.getElementById('cgpa-data').getAttribute('data-cgpa')) || 0;
-    
-    let res = document.getElementById('goal-result');
-    if (isNaN(target) || target > 10 || target < 0) {
-        res.innerHTML = "❌ Please enter a valid CGPA between 0 and 10.";
-        res.style.color = "var(--grade-f)";
-        return;
+    async function refreshSlogan() {
+        const sloganEl = document.getElementById('ai-slogan');
+        sloganEl.style.opacity = '0.5';
+        try {
+            const res = await fetch('/api/daily-slogan?t=' + Date.now());
+            const data = await res.json();
+            sloganEl.textContent = `"${data.slogan}"`;
+        } catch(e) {
+            console.error(e);
+        }
+        sloganEl.style.opacity = '1';
     }
-    
-    if (target <= current_cgpa) {
-        res.innerHTML = "✅ You have already achieved or surpassed this goal!";
-        res.style.color = "var(--grade-o)";
-        return;
+
+    function toggleDashboardSprint(check) {
+        check.classList.toggle('checked');
+        const text = check.nextElementSibling;
+        text.classList.toggle('completed');
+        
+        // Visual indicator that Nexora is syncing
+        const title = document.querySelector('.panel-title');
+        const originalTitle = "Weekly Tactical Pipeline";
+        title.textContent = "Syncing with Matrix...";
+        setTimeout(() => {
+            title.textContent = originalTitle;
+        }, 800);
     }
-    
-    let deficit = target - current_cgpa;
-    res.innerHTML = "🔥 To reach a <b>" + target + "</b> CGPA, you need to improve your overall average by <b>" + deficit.toFixed(2) + "</b> points across your subjects. <br><br>👉 Focus heavily on the subjects listed below where you have a <b>B</b> or <b>B+</b> to boost your total credit points easily!";
-    res.style.color = "var(--primary-hover)";
-}
 </script>
 
-</body>
-
-</html>
+<style>
+    .panel:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
+</style>
+{% endblock %}

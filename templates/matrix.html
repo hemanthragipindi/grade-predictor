@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block title %}Active Course Matrix - Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="engine-header" style="margin-bottom: 40px;">
+        <div class="engine-title">
+            <div class="engine-icon">
+                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 4-8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+            </div>
+            <div>
+                <h1 style="font-size: 1.8rem; font-weight: 850;">Active Course Matrix</h1>
+                <p>Advanced Structural Performance Breakdown</p>
+            </div>
+        </div>
+        <a href="{{ url_for('add_subject') }}" class="btn-primary" style="text-decoration: none;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add New Subject
+        </a>
+    </div>
+
+    <div class="courses-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+        {% for row in results %}
+        <div class="course-item" style="position: relative; border-color: {% if row.priority == 'High' %}rgba(244, 63, 94, 0.2){% else %}rgba(30, 41, 59, 0.1){% endif %};">
+            {% if row.priority == 'High' %}
+            <div style="position: absolute; top: 0; right: 0; padding: 5px 12px; font-size: 0.65rem; font-weight: 850; background: #f43f5e; color: white; border-bottom-left-radius: 10px; letter-spacing: 1px;">CRITICAL MATRIX RISK</div>
+            {% endif %}
+
+            <div style="display: flex; align-items: flex-start; gap: 20px; margin-bottom: 20px;">
+                <div style="position: relative; width: 60px; height: 60px;">
+                    <svg width="60" height="60" viewBox="0 0 60 60">
+                        <circle cx="30" cy="30" r="26" fill="none" stroke="#eef1f5" stroke-width="5"></circle>
+                        {% set offset = 163 - (163 * row.score / 100) %}
+                        <circle cx="30" cy="30" r="26" fill="none" stroke="{% if row.score >= 80 %}#10b981{% elif row.score >= 60 %}#3b82f6{% else %}#f43f5e{% endif %}" stroke-width="5" stroke-dasharray="163" stroke-dashoffset="{{ offset }}" transform="rotate(-90 30 30)" stroke-linecap="round"></circle>
+                    </svg>
+                    <div style="position: absolute; top:0; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; font-size: 1rem; font-weight: 800;">
+                        {{ "%.0f"|format(row.score) }}%
+                    </div>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0 0 4px 0;">{{ row.subject.subject_name }}</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">{{ row.subject.subject_code }} · Credits: {{ row.subject.credits }}</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #eef1f5;">
+                    <div style="font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">SENSITIVITY</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #1e293b;">+{{ row.sensitivity }}</div>
+                </div>
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #eef1f5;">
+                    <div style="font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">FAILURE RISK</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: {% if row.risk > 50 %}#f43f5e{% else %}#10b981{% endif %};">{{ row.risk|round(1) }}%</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ url_for('subject_page', subject_id=row.subject.id) }}" class="btn-primary" style="flex: 2; justify-content: center; text-decoration: none; font-size: 0.85rem; padding: 12px;">Deploy Optimization</a>
+                <button onclick="logStudyTime('{{ row.subject.subject_code }}')" class="btn-outline" style="flex: 1; min-width: auto; padding: 12px; color: var(--text-main); border-color: #e2e8f0; font-size: 0.8rem;">Log</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+async function logStudyTime(subCode) {
+    showToast(`Logging session for ${subCode}...`, 'info');
+    try {
+        const response = await fetch('/log_study', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({subject_code: subCode})
+        });
+        const data = await response.json();
+        if (data.success) {
+            showToast(data.message, 'success');
+        }
+    } catch (error) {
+        console.error('Error logging study:', error);
+    }
+}
+</script>
+{% endblock %}

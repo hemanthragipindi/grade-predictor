@@ -1,0 +1,236 @@
+{% extends 'layout.html' %}
+{% block title %}Academics | Summary{% endblock %}
+{% block content %}
+
+<style>
+    .minimal-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    
+    /* Top CGPA Section */
+    .top-summary {
+        text-align: center;
+        margin-bottom: 60px;
+        position: relative;
+        padding: 30px;
+        background: var(--bg-panel);
+        border-radius: var(--radius-lg);
+        border: none;
+        transition: 0.3s;
+    }
+    .top-summary:hover .hover-analysis {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    .cgpa-large { font-size: 5rem; font-weight: 800; color: #fff; margin: 0; line-height: 1; }
+    .cgpa-label { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+    
+    .dynamic-progress-container {
+        width: 100%;
+        max-width: 600px;
+        height: 12px;
+        background: var(--border);
+        border-radius: 10px;
+        margin: 30px auto;
+        overflow: hidden;
+        border: 1px solid var(--border-bright);
+    }
+    .dynamic-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 10px;
+    }
+
+    .hover-analysis {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        width: 100%;
+        max-width: 500px;
+        background: var(--bg-card);
+        border: 1px solid var(--primary);
+        padding: 20px;
+        border-radius: var(--radius-md);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s;
+        z-index: 100;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    /* Subjects Grid */
+    .subjects-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+    .minimal-card {
+        background: var(--bg-panel);
+        padding: 24px;
+        border-radius: var(--radius-md);
+        border: none;
+        transition: 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    .minimal-card:hover {
+        border-color: var(--primary);
+        background: var(--bg-card);
+    }
+    .minimal-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; }
+    .minimal-card .code { font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; display: block; }
+    .minimal-card .score { font-size: 1.4rem; font-weight: 700; }
+    
+    /* Markdown Styles for AI Response */
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .markdown-body p { margin-bottom: 1rem; }
+    .markdown-body ul, .markdown-body ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+    .markdown-body code { background: var(--bg-card); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+</style>
+
+<div class="minimal-container animate-in">
+    <!-- Top Nav -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back to Year Overview
+            </a>
+        </div>
+        <div style="display: flex; gap: 20px;">
+            <a href="#" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 700;">STRATEGY</a>
+            <a href="#" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 700;">HISTORY</a>
+        </div>
+    </div>
+
+    <!-- Top GPA Section -->
+    <div class="top-summary">
+        <div class="cgpa-label">TERM {{ semester_id }} TGPA</div>
+        <h1 class="cgpa-large">{{ "%.2f"|format(tgpa) }}</h1>
+        
+        <div class="dynamic-progress-container">
+            <div class="dynamic-progress-bar" style="width: {{ (tgpa / 10 * 100)|round }}%;"></div>
+        </div>
+        
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Target: <strong style="color:#fff;">8.50</strong> | Status: <strong style="color:var(--secondary);">MISSION CRITICAL</strong>
+        </div>
+
+        <!-- Hover Analysis Box -->
+        <div class="hover-analysis">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; text-align: left;">ADVISOR INSIGHTS</div>
+            <div style="text-align: left; font-size: 0.85rem; line-height: 1.5; color: var(--text-main);">
+                - Mid-term requirement: <strong>28/50</strong> average across all subjects.<br>
+                - Critical Subjects: <span style="color:var(--grade-f);">CSE320, CHE110</span> (Zero knowledge detected).<br>
+                - Velocity: <span style="color:var(--grade-aplus);">+0.12 GPA improvement</span> expected if targets met.
+            </div>
+        </div>
+    </div>
+
+    <!-- Subjects Section -->
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 1.2rem; margin: 0;">Academic Modules (Term {{ semester_id }})</h2>
+        <button class="btn-outline" onclick="toggleAdvisor()" style="font-size: 0.7rem;">STRATEGIC HUB</button>
+    </div>
+
+    <div class="subjects-grid">
+        {% for r in results %}
+        <a href="/subject/{{ r.subject.id }}" class="minimal-card">
+            <span class="code">{{ r.subject.subject_code }}</span>
+            <h3>{{ r.subject.subject_name }}</h3>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px;">
+                <div class="score">{{ "%.1f"|format(r.score) }}%</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">
+                    RISK: <span style="color: {% if r.score < 40 %}var(--grade-f){% else %}var(--grade-aplus){% endif %};">{{ "%.0f"|format(100 - r.score) }}%</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- AI Universal Research Bar -->
+    <div style="margin-top: 60px;">
+        <div class="section-header" style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.1rem; letter-spacing: 1px;">AI RESEARCH & STRATEGY</h2>
+            <div class="line" style="height: 1px; background: var(--border); flex-grow: 1; margin-left: 20px;"></div>
+        </div>
+        
+        <div style="background: var(--bg-panel); padding: 24px; border-radius: var(--radius-lg); position: relative;">
+            <div id="ai-response-area" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6; color: var(--text-main); display: none;">
+                <!-- AI Response will appear here -->
+            </div>
+            
+            <div style="display: flex; gap: 12px; align-items: center; background: var(--bg-card); padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border-bright);">
+                <label for="ai-file-upload" style="cursor: pointer; color: var(--text-muted); padding: 8px; border-radius: 50%; hover: background: var(--border);">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    <input type="file" id="ai-file-upload" multiple style="display: none;">
+                </label>
+                <input type="text" id="ai-universal-input" placeholder="Ask Gemini: Analysis, syllabus breakdown, or generate images..." style="flex: 1; background: transparent; border: none; color: white; padding: 12px; outline: none; font-size: 1rem;">
+                <button onclick="askAI()" style="background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 100px; font-weight: 700; cursor: pointer; transition: 0.2s;">ASK</button>
+            </div>
+            
+            <div id="file-preview-list" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAdvisor() {
+    alert("Strategic Hub: Targets aligned. Focus on MTH166 exam on Monday.");
+}
+
+async function askAI() {
+    const input = document.getElementById('ai-universal-input');
+    const fileInput = document.getElementById('ai-file-upload');
+    const responseArea = document.getElementById('ai-response-area');
+    const message = input.value.trim();
+    
+    if (!message && fileInput.files.length === 0) return;
+    
+    // UI Feedback
+    responseArea.style.display = 'block';
+    responseArea.innerHTML = '<div style="color: var(--primary); font-family: monospace;">Processing Universal Request...</div>';
+    input.value = '';
+    
+    const formData = new FormData();
+    formData.append('message', message);
+    for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append('files', fileInput.files[i]);
+    }
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
+        responseArea.innerHTML = `
+            <div style="color: var(--primary); font-size: 0.7rem; font-weight: 800; margin-bottom: 10px;">GEMINI INTELLIGENCE</div>
+            <div class="markdown-body">${data.response}</div>
+        `;
+        document.getElementById('file-preview-list').innerHTML = '';
+        fileInput.value = '';
+    } catch (e) {
+        responseArea.innerHTML = '<div style="color: var(--grade-f);">System error: Failed to connect to AI core.</div>';
+    }
+}
+
+document.getElementById('ai-file-upload').addEventListener('change', function() {
+    const list = document.getElementById('file-preview-list');
+    list.innerHTML = '';
+    for (let i = 0; i < this.files.length; i++) {
+        const badge = document.createElement('div');
+        badge.style.cssText = "background: var(--border); padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; display: flex; align-items: center; gap: 8px;";
+        badge.innerHTML = `<span>📄 ${this.files[i].name}</span>`;
+        list.appendChild(badge);
+    }
+});
+
+// Handle Enter Key
+document.getElementById('ai-universal-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') askAI();
+});
+</script>
+
+{% endblock %}

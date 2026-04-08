@@ -1,0 +1,418 @@
+{% extends 'layout.html' %}
+{% block title %}Nexora | Academic History{% endblock %}
+{% block content %}
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .page-title h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin: 0;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+    }
+    
+    .history-top-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+    
+    .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 30px;
+        box-shadow: var(--shadow-premium);
+    }
+    
+    .gpa-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+    .gh-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .gh-val {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        line-height: 1;
+        margin-top: 5px;
+    }
+    .gh-badge {
+        background: rgba(125, 211, 252, 0.1);
+        color: var(--primary);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    
+    .gpa-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        height: 120px;
+        margin-top: 30px;
+    }
+    .gc-bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+    }
+    .gc-bar {
+        width: 100%;
+        background: rgba(125, 211, 252, 0.2);
+        border-radius: 4px 4px 0 0;
+        margin-top: auto;
+        transition: background 0.2s;
+    }
+    .gc-bar.active { background: var(--primary); }
+    .gc-label {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .credits-panel {
+        background: var(--primary);
+        color: white;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .cp-icon {
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        width: 150px;
+        height: 150px;
+        opacity: 0.1;
+    }
+    .cp-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        opacity: 0.9;
+    }
+    .cp-val {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 0;
+        line-height: 1;
+    }
+    .cp-sub {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin: 5px 0 30px 0;
+    }
+    
+    .progress-wrap {
+        margin-top: auto;
+    }
+    .progress-track {
+        height: 6px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        background: white;
+    }
+    .progress-text {
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 6px;
+    }
+
+    .transcript-section {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-premium);
+        padding: 30px;
+    }
+    
+    .ts-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .ts-title h2 { margin: 0 0 4px 0; font-size: 1.2rem; color: var(--text-main); }
+    .ts-title p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+    
+    .ts-actions {
+        display: flex;
+        gap: 12px;
+    }
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border-bright);
+        color: var(--text-main);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    .btn-export {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th {
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid var(--border);
+    }
+    td {
+        padding: 16px;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-main);
+    }
+    tr:last-child td { border-bottom: none; }
+    
+    .code-col { font-weight: 700; color: var(--primary); width: 15%; }
+    .name-col { width: 35%; }
+    .name-col h4 { margin: 0 0 2px 0; font-size: 0.9rem; color: var(--text-main); }
+    .name-col p { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
+    .sem-col { color: var(--text-muted); width: 15%; }
+    .cred-col { color: var(--text-muted); width: 10%; }
+    .grade-col { font-weight: 800; color: var(--primary); font-size: 1rem; width: 10%; }
+    
+    .status-badge.completed {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(134, 239, 172, 0.1);
+        color: var(--grade-o);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .status-badge.pending {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(125, 211, 252, 0.1);
+        color: var(--grade-b);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .table-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        margin-top: 10px;
+        border-top: 1px solid var(--border);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+    .pagination {
+        display: flex;
+        gap: 8px;
+    }
+    .page-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: var(--bg-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-muted);
+    }
+    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+</style>
+
+<div class="page-header animate-in">
+    <div class="page-title">
+        <h1>Academic History</h1>
+    </div>
+</div>
+
+<div class="history-top-grid animate-in" style="animation-delay: 0.1s;">
+    <!-- GPA History Chart -->
+    <div class="panel">
+        <div class="gpa-header">
+            <div>
+                <div class="gh-title">CUMULATIVE GPA HISTORY</div>
+                <div class="gh-val">{{ "%.2f"|format(cgpa) }}</div>
+            </div>
+            <div class="gh-badge">+0.12 this term</div>
+        </div>
+        
+        <div class="gpa-chart">
+            <div class="gc-bar-wrapper">
+                <div class="gc-bar" style="height: 30%;"></div>
+                <div class="gc-label">YEAR 1</div>
+            </div>
+            <div class="gc-bar-wrapper">
+                <div class="gc-bar" style="height: 45%;"></div>
+                <div class="gc-label">YEAR 2</div>
+            </div>
+            <div class="gc-bar-wrapper">
+                <div class="gc-bar" style="height: 70%;"></div>
+                <div class="gc-label">YEAR 3</div>
+            </div>
+            <div class="gc-bar-wrapper">
+                <div class="gc-bar" style="height: 85%;"></div>
+                <div class="gc-label">YEAR 4</div>
+            </div>
+            <div class="gc-bar-wrapper">
+                <div class="gc-bar active" style="height: 100%;"></div>
+                <div class="gc-label">CURRENT</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Credits Earned -->
+    <div class="panel credits-panel">
+        <svg class="cp-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+        <div class="cp-title">TOTAL CREDITS EARNED</div>
+        <div class="cp-val">{{ "%.0f"|format(total_credits) }}</div>
+        <div class="cp-sub">{{ "%.0f"|format(160 - total_credits) }} credits until graduation</div>
+        
+        <div class="progress-wrap">
+            {% set pct = (total_credits / 160) * 100 %}
+            {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+            <div class="progress-track">
+                <div class="progress-fill" style="width: {{ pct }}%;"></div>
+            </div>
+            <div class="progress-text">{{ "%.1f"|format(pct) }}%</div>
+        </div>
+    </div>
+</div>
+
+<div class="transcript-section animate-in" style="animation-delay: 0.2s;">
+    <div class="ts-header">
+        <div class="ts-title">
+            <h2>Course Transcript</h2>
+            <p>Comprehensive record of academic performance</p>
+        </div>
+        <div class="ts-actions">
+            <button class="btn-outline">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                Filter by Semester
+            </button>
+            <button class="btn-export">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export PDF
+            </button>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>COURSE CODE</th>
+                <th>COURSE NAME</th>
+                <th>SEMESTER</th>
+                <th>CREDITS</th>
+                <th>FINAL GRADE</th>
+                <th>STATUS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in results %}
+            <tr>
+                <td class="code-col">{{ item.subject.subject_code }}</td>
+                <td class="name-col">
+                    <h4>{{ item.subject.subject_name }}</h4>
+                    <p>Semester {{ item.subject.semester }}</p>
+                </td>
+                <td class="sem-col">SEM {{ item.subject.semester }}</td>
+                <td class="cred-col">{{ item.credits }}</td>
+                <td class="grade-col">{{ item.grade }}</td>
+                <td>
+                    {% if item.status == "COMPLETED" %}
+                    <span class="status-badge completed">
+                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"></path></svg>
+                        COMPLETED
+                    </span>
+                    {% else %}
+                    <span class="status-badge pending">
+                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M12 8v4l3 3"></path></svg>
+                        PENDING
+                    </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            
+            {% if results|length == 0 %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No transcript data available.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <div class="table-footer">
+        <div>SHOWING {{ results|length }} COURSES</div>
+        <div class="pagination">
+            <button class="page-btn"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+            <button class="page-btn"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

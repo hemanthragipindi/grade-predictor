@@ -1,0 +1,366 @@
+{% extends 'layout.html' %}
+{% block title %}AI Assistant | Nexora{% endblock %}
+{% block content %}
+<style>
+    .assistant-container {
+        display: flex;
+        height: 80vh;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-top: 20px;
+    }
+    .assistant-sidebar {
+        width: 250px;
+        background: var(--bg-panel);
+        border-right: 1px solid var(--border);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    .assistant-sidebar-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 20px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .assistant-sidebar-btn:hover {
+        background: var(--primary-hover);
+    }
+    .chat-history-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+    .history-item {
+        padding: 10px;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .history-item:hover {
+        background: var(--primary-glow);
+        color: var(--primary);
+    }
+    .assistant-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-dark);
+    }
+    .assistant-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--bg-panel);
+    }
+    .assistant-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: var(--text-main);
+    }
+    .assistant-messages {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        scroll-behavior: smooth;
+    }
+    .full-chat-msg {
+        max-width: 85%;
+        display: flex;
+        gap: 16px;
+    }
+    .full-chat-msg.user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+    .full-chat-msg.ai {
+        align-self: flex-start;
+    }
+    .msg-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    .msg-avatar.user { background: var(--primary); color: white; }
+    .msg-avatar.ai { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+    
+    .msg-bubble {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-bright);
+        padding: 16px 20px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-main);
+    }
+    .full-chat-msg.user .msg-bubble {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    
+    .msg-bubble p { margin-top: 0; margin-bottom: 10px; }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+    .msg-bubble pre { background: var(--bg-dark); padding: 10px; border-radius: 6px; overflow-x: auto; color: var(--text-main); }
+    .msg-bubble code { background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; }
+    
+    .assistant-input-area {
+        padding: 20px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-card);
+    }
+    .input-wrapper {
+        display: flex;
+        gap: 10px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--border-bright);
+        border-radius: 24px;
+        padding: 5px 5px 5px 20px;
+    }
+    .assistant-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: white;
+        outline: none;
+        font-size: 1rem;
+    }
+    .assistant-send {
+        background: var(--primary);
+        color: white;
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .assistant-send:hover { background: var(--primary-hover); }
+</style>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('dashboard') }}" class="back-btn" style="color:var(--text-muted); text-decoration:none; display:flex; align-items:center; gap:8px;">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Dashboard
+    </a>
+</div>
+
+<div class="assistant-container">
+    <div class="assistant-sidebar">
+        <button class="assistant-sidebar-btn" onclick="startNewChat()">
+            <span style="font-size:1.2rem; line-height: 1;">+</span> New Chat
+        </button>
+        <div style="font-size: 0.75rem; color: var(--text-darker); text-transform: uppercase; font-weight: 600; margin-bottom: 10px;">Recent Conversations</div>
+        <div class="chat-history-list">
+            <div class="history-item">Mid-term study plan</div>
+            <div class="history-item">Database Systems lab prep</div>
+            <div class="history-item">How to improve CGPA</div>
+        </div>
+    </div>
+    
+    <div class="assistant-main">
+        <div class="assistant-header">
+            <div class="msg-avatar ai" style="width:30px; height:30px; font-size:0.8rem;">AI</div>
+            <h2>Nexora Assistant</h2>
+        </div>
+        
+        <div class="assistant-messages" id="full-chatbot-messages">
+            <div class="full-chat-msg ai">
+                <div class="msg-avatar ai">AI</div>
+                <div class="msg-bubble">
+                    Hello! I'm your advanced Nexora Assistant. I can remember our conversation context. Ask me to draft a plan, explain a complex topic, or analyze your current grades!
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-typing" id="full-chat-typing" style="padding-left:30px;">AI is thinking...</div>
+        
+        <div id="file-preview-container" style="display: flex; gap: 10px; padding: 10px 30px; flex-wrap: wrap;"></div>
+        <div class="assistant-input-area">
+            <div class="input-wrapper">
+                <label for="chat-file-upload" style="color: var(--text-muted); cursor: pointer; display: flex; align-items: center; padding: 0 10px;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                </label>
+                <input type="file" id="chat-file-upload" multiple style="display: none;" onchange="updateFilePreview()">
+                <input type="text" id="full-chat-input" class="assistant-input" placeholder="Message Nexora Assistant..." autocomplete="off">
+                <button class="assistant-send" id="full-chat-send">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let fullChatHistory = [];
+    let selectedFiles = [];
+    
+    function updateFilePreview() {
+        const fileInput = document.getElementById("chat-file-upload");
+        const container = document.getElementById("file-preview-container");
+        container.innerHTML = "";
+        selectedFiles = Array.from(fileInput.files);
+        
+        selectedFiles.forEach((file, index) => {
+            const badge = document.createElement("div");
+            badge.style = "background: rgba(125, 211, 252, 0.2); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;";
+            badge.innerHTML = `📄 ${file.name} <span style="cursor:pointer; color: var(--grade-f);" onclick="removeFile(${index})">✖</span>`;
+            container.appendChild(badge);
+        });
+    }
+
+    // Attach to window so onclick works
+    window.updateFilePreview = updateFilePreview;
+    
+    window.removeFile = function(index) {
+        selectedFiles.splice(index, 1);
+        const container = document.getElementById("file-preview-container");
+        container.innerHTML = "";
+        selectedFiles.forEach((file, idx) => {
+            const badge = document.createElement("div");
+            badge.style = "background: rgba(125, 211, 252, 0.2); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;";
+            badge.innerHTML = `📄 ${file.name} <span style="cursor:pointer; color: var(--grade-f);" onclick="removeFile(${idx})">✖</span>`;
+            container.appendChild(badge);
+        });
+        
+        // Reset file input if all cleared so same file can be selected again
+        if(selectedFiles.length === 0) {
+            document.getElementById("chat-file-upload").value = "";
+        }
+    };
+    
+    function startNewChat() {
+        fullChatHistory = [];
+        const container = document.getElementById("full-chatbot-messages");
+        container.innerHTML = `
+            <div class="full-chat-msg ai">
+                <div class="msg-avatar ai">AI</div>
+                <div class="msg-bubble">
+                    New session started. How can I assist you today?
+                </div>
+            </div>
+        `;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const sendBtn = document.getElementById("full-chat-send");
+        const inputField = document.getElementById("full-chat-input");
+        const messagesContainer = document.getElementById("full-chatbot-messages");
+        const typingIndicator = document.getElementById("full-chat-typing");
+
+        const appendFullMessage = (text, sender, isHtml = false) => {
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `full-chat-msg ${sender}`;
+            
+            const avatar = document.createElement("div");
+            avatar.className = `msg-avatar ${sender}`;
+            avatar.textContent = sender === 'user' ? 'U' : 'AI';
+            
+            const bubble = document.createElement("div");
+            bubble.className = "msg-bubble";
+            if (isHtml) bubble.innerHTML = text;
+            else bubble.textContent = text;
+            
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(bubble);
+            
+            messagesContainer.appendChild(msgDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+
+        const sendFullMessage = async () => {
+            const text = inputField.value.trim();
+            if (!text && selectedFiles.length === 0) return;
+
+            let displayMsg = text;
+            if (selectedFiles.length > 0) {
+                const fileNames = selectedFiles.map(f => f.name).join(", ");
+                displayMsg = text ? `${text} <br><small style="color:var(--primary)">📎 Attached: ${fileNames}</small>` : `<small style="color:var(--primary)">📎 Attached: ${fileNames}</small>`;
+            }
+            appendFullMessage(displayMsg, "user", true);
+            
+            const formData = new FormData();
+            formData.append("message", text);
+            formData.append("history", JSON.stringify(fullChatHistory));
+            
+            selectedFiles.forEach(file => {
+                formData.append("files", file);
+            });
+            
+            fullChatHistory.push({ role: "user", content: displayMsg });
+            
+            inputField.value = "";
+            selectedFiles = [];
+            document.getElementById("chat-file-upload").value = "";
+            document.getElementById("file-preview-container").innerHTML = "";
+            typingIndicator.classList.add("active");
+
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    body: formData // No headers required for FormData
+                });
+
+                const data = await response.json();
+                typingIndicator.classList.remove("active");
+                
+                if (data.response) {
+                    appendFullMessage(data.response, "ai", true);
+                    fullChatHistory.push({ role: "ai", content: data.text || data.response });
+                } else {
+                    appendFullMessage("Received an empty response.", "ai");
+                }
+            } catch (err) {
+                typingIndicator.classList.remove("active");
+                appendFullMessage("Failed to connect to AI server.", "ai");
+            }
+        };
+
+        sendBtn.addEventListener("click", sendFullMessage);
+        inputField.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                sendFullMessage();
+            }
+        });
+    });
+</script>
+<script>
+    // Hide the floating widget on the full assistant page as it's redundant
+    document.addEventListener("DOMContentLoaded", () => {
+        const floatingWidget = document.querySelector('.ai-chatbot-container');
+        if (floatingWidget) floatingWidget.style.display = 'none';
+    });
+</script>
+{% endblock %}

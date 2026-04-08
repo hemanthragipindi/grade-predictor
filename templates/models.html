@@ -1,0 +1,547 @@
+{% extends 'layout.html' %}
+{% block title %}Nexora | Predictive Models{% endblock %}
+{% block content %}
+
+<style>
+    .page-title h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin: 0 0 5px 0;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+    }
+
+    .models-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        margin-top: 24px;
+    }
+
+    .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow-premium);
+    }
+
+    /* Active Scenario Header */
+    .active-scenario {
+        margin-bottom: 30px;
+    }
+    .as-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .as-live {
+        background: rgba(134, 239, 172, 0.1);
+        color: var(--grade-o);
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .as-live .dot { width: 6px; height: 6px; background: var(--grade-o); border-radius: 50%; }
+    
+    .as-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0 0 24px 0;
+    }
+    
+    .as-metrics {
+        display: flex;
+        gap: 40px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 24px;
+    }
+    .as-metric .label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .as-metric .val {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+    .as-metric .val.dark { color: var(--text-main); }
+    .as-metric .val span { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+    /* Saved Models List */
+    .saved-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 24px 0 16px 0;
+    }
+    .saved-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    .view-arc {
+        font-size: 0.75rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .saved-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--bg-dark);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 10px;
+        transition: border-color 0.2s;
+    }
+    .saved-item:hover {
+        border-color: var(--primary);
+    }
+    .si-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .si-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(125, 211, 252, 0.1);
+        color: var(--primary);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .si-details h4 { margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text-main); }
+    .si-details p { margin: 0; font-size: 0.7rem; color: var(--text-muted); }
+    
+    .si-right {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    .si-stat .label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .si-stat .val { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
+    .si-stat .val.black { color: var(--text-main); }
+
+    /* Simulation Engine */
+    .engine-panel {
+        background: var(--bg-dark); /* distinct darker background like the image */
+    }
+    .engine-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: var(--text-main);
+    }
+    
+    .engine-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .et-label h4 { margin: 0 0 4px 0; font-size: 0.85rem; color: var(--text-main); }
+    .et-label p { margin: 0; font-size: 0.7rem; color: var(--text-muted); }
+    
+    /* Toggle switch CSS */
+    .switch-ui {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+    }
+    .switch-ui input { opacity: 0; width: 0; height: 0; }
+    .switch-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: var(--border-bright);
+        transition: .4s;
+        border-radius: 20px;
+    }
+    .switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 14px; width: 14px;
+        left: 3px; bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    .switch-ui input:checked + .switch-slider { background-color: var(--primary); }
+    .switch-ui input:checked + .switch-slider:before { transform: translateX(16px); }
+
+    .engine-slider {
+        margin: 24px 0;
+    }
+    .es-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+    .es-val { color: var(--text-main); }
+    
+    input[type=range] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        margin-top: -6px;
+        box-shadow: 0 0 10px rgba(125, 211, 252, 0.4);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        cursor: pointer;
+        background: var(--border-bright);
+        border-radius: 2px;
+    }
+
+    .btn-simulate {
+        width: 100%;
+        background: rgba(125, 211, 252, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(125, 211, 252, 0.2);
+        padding: 12px;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 24px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-simulate:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Bottom Section */
+    .scenario-comp {
+        margin-top: 30px;
+    }
+    .sc-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr;
+        gap: 20px;
+        margin-top: 15px;
+    }
+    .sc-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        box-shadow: var(--shadow-premium);
+        position: relative;
+    }
+    .sc-header {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    .sc-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 20px 0;
+    }
+    
+    .bar-chart-mock {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 80px;
+        margin-top: auto;
+    }
+    .bm-bar {
+        flex: 1;
+        background: rgba(125, 211, 252, 0.4);
+        border-radius: 2px 2px 0 0;
+    }
+    .bm-bar.active { background: var(--primary); }
+    
+    .ring-chart-mock {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 8px solid var(--border);
+        border-top-color: var(--primary);
+        border-right-color: var(--primary);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .ai-card {
+        background: var(--primary);
+        color: white;
+        border: none;
+    }
+    .ai-card .sc-header { color: rgba(255,255,255,0.7); }
+    .ai-card .sc-title { color: white; }
+    .ai-desc {
+        font-size: 0.8rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+    .btn-apply {
+        background: white;
+        color: var(--primary);
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+</style>
+
+<div class="page-title animate-in">
+    <h1>Predictive Models</h1>
+</div>
+
+<div class="models-grid animate-in" style="animation-delay: 0.1s;">
+    <!-- Left Area -->
+    <div>
+        <div class="panel">
+            <div class="active-scenario">
+                <div class="as-badge">
+                    ACTIVE SCENARIO
+                    <div class="as-live"><div class="dot"></div> Model Live</div>
+                </div>
+                <h2 class="as-title">Graduate Admissions 2024_v2</h2>
+                
+                <div class="as-metrics">
+                    <div class="as-metric">
+                        <div class="label">Confidence Score</div>
+                        <div class="val">94.8%</div>
+                    </div>
+                    <div class="as-metric">
+                        <div class="label">Target Grade</div>
+                        <div class="val dark">A- <span>GPA 3.8</span></div>
+                    </div>
+                    <div class="as-metric">
+                        <div class="label">Last Simulation</div>
+                        <div class="val dark" style="font-weight: 500;">14<span>m ago</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="saved-header">
+                <div class="saved-title">Saved Simulation Models</div>
+                <a href="#" class="view-arc">View Archive &rarr;</a>
+            </div>
+            
+            <div class="saved-item">
+                <div class="si-left">
+                    <div class="si-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <div class="si-details">
+                        <h4>STEM Excellence Projection</h4>
+                        <p>Last modified Oct 12, 2023</p>
+                    </div>
+                </div>
+                <div class="si-right">
+                    <div class="si-stat">
+                        <div class="label">Confidence</div>
+                        <div class="val">88.2%</div>
+                    </div>
+                    <div class="si-stat">
+                        <div class="label">Metric</div>
+                        <div class="val black">B+</div>
+                    </div>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted); cursor:pointer;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                </div>
+            </div>
+            
+            <div class="saved-item">
+                <div class="si-left">
+                    <div class="si-icon" style="background: rgba(125, 211, 252, 0.1); color: var(--primary);">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <div class="si-details">
+                        <h4>Humanities Longitudinal</h4>
+                        <p>Last modified Sep 28, 2023</p>
+                    </div>
+                </div>
+                <div class="si-right">
+                    <div class="si-stat">
+                        <div class="label">Confidence</div>
+                        <div class="val">91.5%</div>
+                    </div>
+                    <div class="si-stat">
+                        <div class="label">Metric</div>
+                        <div class="val black">A</div>
+                    </div>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted); cursor:pointer;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                </div>
+            </div>
+            
+            <div class="saved-item">
+                <div class="si-left">
+                    <div class="si-icon" style="background: rgba(134, 239, 172, 0.1); color: var(--accent);">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <div class="si-details">
+                        <h4>Baseline Stress Test</h4>
+                        <p>Last modified Aug 15, 2023</p>
+                    </div>
+                </div>
+                <div class="si-right">
+                    <div class="si-stat">
+                        <div class="label">Confidence</div>
+                        <div class="val" style="color: var(--accent);">76.0%</div>
+                    </div>
+                    <div class="si-stat">
+                        <div class="label">Metric</div>
+                        <div class="val black">C-</div>
+                    </div>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted); cursor:pointer;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Right Area -->
+    <div class="panel engine-panel">
+        <div class="engine-header">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--primary);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Simulation Engine
+        </div>
+        
+        <div class="engine-toggle">
+            <div class="et-label">
+                <h4>Historical Bias</h4>
+                <p>Weight past results heavily</p>
+            </div>
+            <label class="switch-ui">
+                <input type="checkbox" checked>
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+        <div class="engine-toggle">
+            <div class="et-label">
+                <h4>Drift Compensation</h4>
+                <p>Auto-adjust for metric shift</p>
+            </div>
+            <label class="switch-ui">
+                <input type="checkbox">
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 24px 0;">
+        
+        <div class="engine-slider">
+            <div class="es-header">
+                <span>Effort Weighting</span>
+                <span class="es-val">0.85</span>
+            </div>
+            <input type="range" min="0" max="100" value="85">
+        </div>
+        
+        <div class="engine-slider">
+            <div class="es-header">
+                <span>Grade Curves</span>
+                <span class="es-val">Bell-Dist</span>
+            </div>
+            <input type="range" min="0" max="100" value="40">
+        </div>
+        
+        <div class="engine-slider">
+            <div class="es-header">
+                <span>Scenario Volatility</span>
+                <span class="es-val">Low</span>
+            </div>
+            <input type="range" min="0" max="100" value="20">
+        </div>
+        
+        <button class="btn-simulate">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            Re-simulate Engine
+        </button>
+    </div>
+</div>
+
+<div class="scenario-comp animate-in" style="animation-delay: 0.2s;">
+    <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 10px;">Scenario Comparison</h3>
+    <div class="sc-grid">
+        <div class="sc-card">
+            <div class="sc-header">CONFIDENCE MATRIX</div>
+            <h4 class="sc-title">Optimistic Growth Model</h4>
+            <div class="bar-chart-mock">
+                <div class="bm-bar" style="height: 30%;"></div>
+                <div class="bm-bar" style="height: 50%;"></div>
+                <div class="bm-bar" style="height: 40%;"></div>
+                <div class="bm-bar" style="height: 60%;"></div>
+                <div class="bm-bar" style="height: 80%;"></div>
+                <div class="bm-bar active" style="height: 100%;"></div>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--primary); margin-top: 10px; font-weight: 700;">+12.4% Variance</div>
+        </div>
+        
+        <div class="sc-card">
+            <div class="sc-header">RESOURCE IMPACT</div>
+            <h4 class="sc-title">Conservative Resource Allocation</h4>
+            <div class="ring-chart-mock">75%</div>
+            <p style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin: 15px 0 0 0;">Efficiency threshold reached for current parameters.</p>
+        </div>
+        
+        <div class="sc-card ai-card">
+            <div class="sc-header" style="display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                AI RECOMMENDED MODEL
+            </div>
+            <h4 class="sc-title">Hybrid Agile Model</h4>
+            <p class="ai-desc">Based on current Effort Weighting, the "Hybrid Agile" model suggests a 4.2% increase in success rate.</p>
+            <button class="btn-apply">Apply Suggestion</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

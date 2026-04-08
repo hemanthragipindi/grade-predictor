@@ -15,3 +15,6 @@ Werkzeug==3.1.6
 
 gunicorn
 psycopg2-binary
+google-genai
+python-dotenv
+markdown
