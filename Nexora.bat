@@ -14,17 +14,14 @@ if exist "venv\Scripts\python.exe" (
     pause
     exit /b
 )
-
 echo [3/4] Warming up the intelligence engine...
 FOR /L %%i IN (1,1,10) DO (
     <nul set /p "=. "
     timeout /t 1 /nobreak >nul
 )
 echo Done.
-
 echo [4/4] Projecting Interface Synthesis...
 set APP_URL=http://127.0.0.1:8000/
-
 :: Launch browser
 if exist "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
     start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --app=%APP_URL%
