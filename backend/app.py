@@ -82,5 +82,23 @@ with app.app_context():
                 db.session.commit()
             except: db.session.rollback()
 
+    # users.created_at migration
+    if 'users' in inspector.get_table_names():
+        cols = [c['name'] for c in inspector.get_columns('users')]
+        if 'created_at' not in cols:
+            try:
+                db.session.execute(text("ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;"))
+                db.session.commit()
+            except: db.session.rollback()
+
+    # cloud_files.public_id migration
+    if 'cloud_files' in inspector.get_table_names():
+        cols = [c['name'] for c in inspector.get_columns('cloud_files')]
+        if 'public_id' not in cols:
+            try:
+                db.session.execute(text("ALTER TABLE cloud_files ADD COLUMN public_id VARCHAR(255);"))
+                db.session.commit()
+            except: db.session.rollback()
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
