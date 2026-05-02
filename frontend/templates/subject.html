@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ subject.subject_code }} Detail | Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="top-bar-minimal" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <a href="{{ url_for('academic.active_matrix') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 700;">← Back to Matrix</a>
+        <div style="font-weight: 850; font-size: 0.8rem; color: var(--primary); letter-spacing: 2px;">MODULE CALIBRATION</div>
+    </div>
+
+    <div class="panel hero" style="background: linear-gradient(135deg, var(--panel-dark), #172554); margin-bottom: 30px; padding: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="color: var(--primary); font-weight: 800; font-size: 0.8rem; margin-bottom: 10px;">{{ subject.subject_code }}</p>
+                <h1 style="font-size: 2.5rem; font-weight: 850; margin: 0; letter-spacing: -1px;">{{ subject.subject_name }}</h1>
+            </div>
+            <div style="text-align: center; background: rgba(255,255,255,0.05); padding: 20px 40px; border-radius: 24px; border: 1px solid var(--border-bright);">
+                <p style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Projected Outcome</p>
+                <p style="font-size: 3.5rem; font-weight: 900; color: var(--grade-o); line-height: 1; margin: 0;">{{ grade }}</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">{{ score }}% Combined</p>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST">
+        <div class="main-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+            <div class="left-col">
+                <div class="panel" style="padding: 0;">
+                    <div style="padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                        <h3 style="margin: 0;">Assessment Parameters</h3>
+                        {% if not edit_mode %}
+                        <a href="?edit=1" style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700;">Enable Modification</a>
+                        {% endif %}
+                    </div>
+                    
+                    <div style="padding: 20px;">
+                        {% for comp in components %}
+                        <div class="comp-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border);">
+                            <div style="flex: 1;">
+                                <p style="font-weight: 700; margin: 0;">{{ comp.component_name }}</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Weight: {{ comp.weight }}%</p>
+                            </div>
+                            
+                            {% if comp.component_name == "Continuous Assessment" %}
+                                <div style="flex: 1; text-align: right; color: var(--primary); font-weight: 800;">Managed in Sub-Matrix</div>
+                            {% else %}
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <input type="number" name="marks_{{ comp.id }}" step="0.1" value="{{ entered_marks.get(comp.id, 0) }}" 
+                                           {% if not edit_mode %}disabled{% endif %}
+                                           style="width: 80px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 8px; border-radius: 8px; text-align: center;">
+                                    <span style="color: var(--text-muted); font-size: 0.8rem;">/ {{ comp.max_marks }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Continuous Assessment Matrix -->
+                <div class="panel" style="margin-top: 30px; padding: 0;">
+                    <div style="padding: 20px; border-bottom: 1px solid var(--border);">
+                        <h3 style="margin: 0;">Continuous Assessment Sub-Matrix</h3>
+                    </div>
+                    <div style="padding: 20px;">
+                        <table style="width: 100%; text-align: left;">
+                            <thead>
+                                <tr style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">
+                                    <th style="padding: 10px;">Item</th>
+                                    <th style="padding: 10px;">Marks</th>
+                                    <th style="padding: 10px;">Max</th>
+                                    <th style="padding: 10px;">Weight</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(4) %}
+                                <tr>
+                                    <td style="padding: 10px; font-weight: 600;">CA {{ i+1 }}</td>
+                                    <td style="padding: 10px;">
+                                        <input type="number" name="ca_marks[]" step="0.1" value="{{ ca_data[i].marks if i < ca_data|length else 0 }}" 
+                                               {% if not edit_mode %}disabled{% endif %}
+                                               style="width: 60px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 6px; border-radius: 6px;">
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <input type="number" name="ca_max[]" step="0.1" value="{{ ca_data[i].max if i < ca_data|length else (30 if not is_prac else 100) }}" 
+                                               {% if not edit_mode %}disabled{% endif %}
+                                               style="width: 60px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 6px; border-radius: 6px;">
+                                    </td>
+                                    <td style="padding: 10px;">
+                                        <input type="number" name="ca_weights[]" step="0.1" value="{{ ca_data[i].weight if i < ca_data|length else 0 }}" 
+                                               {% if not edit_mode %}disabled{% endif %}
+                                               style="width: 60px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 6px; border-radius: 6px;">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="panel" style="position: sticky; top: 30px;">
+                    <h3 style="margin: 0 0 20px 0;">Strategy Engine</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px;">
+                        Calibrate your current scores and weights to project future outcomes. Changes here are saved directly to your academic matrix.
+                    </p>
+                    
+                    {% if edit_mode %}
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; background: var(--secondary);">Sync Parameters</button>
+                    <a href="?" style="display: block; text-align: center; margin-top: 15px; color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">Discard Changes</a>
+                    {% else %}
+                    <div style="padding: 20px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid var(--primary);">
+                        <p style="margin: 0; font-weight: 700; color: var(--primary); font-size: 0.8rem;">Intelligence Locked</p>
+                        <p style="margin: 5px 0 0 0; font-size: 0.75rem; color: var(--text-muted);">Enable modification to adjust weights and test sandbox scenarios.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

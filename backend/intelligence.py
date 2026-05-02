@@ -59,6 +59,15 @@ class AcademicBrain:
     def get_learning_insights(self):
         return {"best_time": "Morning", "morning_vs_night": "Standard optimization", "focus_duration": "45m"}
 
+    def get_ai_advice(self, message, history):
+        # Professional fallback logic for academic guidance
+        msg = message.lower()
+        if "grade" in msg or "marks" in msg:
+            return "To optimize your grades, focus on subjects with high GPA sensitivity and ensure your Continuous Assessment (CA) scores stay above 75%."
+        if "upload" in msg or "file" in msg:
+            return "You can secure academic artifacts like PDFs and images in your Cloud Vault. Images are optimized via Cloudinary automatically."
+        return "I am Nexora. I am here to help you project your academic outcomes and optimize your study matrix. How can I assist with your course strategy?"
+
     def predict_failure_risk(self, subject_id):
         score = self._get_current_score(subject_id)
         if score >= 60: return 5

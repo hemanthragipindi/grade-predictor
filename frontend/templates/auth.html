@@ -171,6 +171,12 @@ document.getElementById('register-form').onsubmit = function(e) {
         e.preventDefault();
         return false;
     }
+    AppLoader.show("SECURING IDENTITY...");
+    return true;
+};
+
+document.getElementById('login-form').onsubmit = function() {
+    AppLoader.show("VERIFYING CREDENTIALS...");
     return true;
 };
 </script>

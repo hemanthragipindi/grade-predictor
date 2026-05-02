@@ -5,6 +5,7 @@ from database import db
 from models import User
 from flask_login import LoginManager
 from sqlalchemy import text, inspect
+from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
 from dotenv import load_dotenv
@@ -16,9 +17,12 @@ app = Flask(__name__,
             template_folder='../frontend/templates', 
             static_folder='../frontend/static')
 
-app.config['SECRET_KEY'] = 'nexora-secret-key-123'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'nexora-fallback-key-123')
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=20)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../backend/instance/grades.db'
+# Use absolute path for DB in production
+db_path = os.path.join(app.root_path, '../backend/instance/grades.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+CORS(app) # Enable CORS for all routes
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, '../frontend/static/uploads')
 
 # Cloudinary Setup

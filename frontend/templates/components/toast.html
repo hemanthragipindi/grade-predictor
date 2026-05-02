@@ -1,0 +1,54 @@
+<!-- Toast Notification System -->
+<div id="toast-container" style="position: fixed; top: 30px; right: 30px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;"></div>
+
+<script>
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    
+    let bgColor = 'var(--panel-dark)';
+    let icon = 'ℹ️';
+    if (type === 'success') { bgColor = 'rgba(16, 185, 129, 0.9)'; icon = '✅'; }
+    if (type === 'warning') { bgColor = 'rgba(244, 63, 94, 0.9)'; icon = '⚠️'; }
+
+    toast.style = `
+        background: ${bgColor};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        animation: toastIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+    `;
+
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        toast.style.transition = '0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+// Flash messages from Flask
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      showToast("{{ message }}", "{{ category }}");
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+</script>

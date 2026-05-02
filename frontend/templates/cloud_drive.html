@@ -144,21 +144,7 @@ async function handleDriveUpload(input) {
     const file = input.files[0];
     if (!file) return;
 
-    const overlay = document.getElementById('upload-overlay');
-    const bar = document.getElementById('upload-progress-bar');
-    const percent = document.getElementById('upload-percent');
-    const filename = document.getElementById('upload-filename');
-
-    overlay.style.display = 'block';
-    filename.innerText = `Syncing: ${file.name}`;
-    
-    // Fake progress animation for cloud sync
-    let p = 10;
-    const interval = setInterval(() => {
-        if (p < 90) p += Math.random() * 5;
-        bar.style.width = `${p}%`;
-        percent.innerText = `${Math.floor(p)}%`;
-    }, 400);
+    AppLoader.show(`SYNCING: ${file.name.toUpperCase()}`);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -168,19 +154,16 @@ async function handleDriveUpload(input) {
         const data = await response.json();
 
         if (data.success) {
-            bar.style.width = `100%`;
-            percent.innerText = `100%`;
             showToast("Cloud sync complete!", "success");
-            setTimeout(() => location.reload(), 800);
+            setTimeout(() => location.reload(), 500);
         } else {
             showToast(data.error || "Upload failed", "warning");
-            overlay.style.display = 'none';
+            AppLoader.hide();
         }
     } catch (e) {
         showToast("Cloud link interrupted", "warning");
-        overlay.style.display = 'none';
+        AppLoader.hide();
     } finally {
-        clearInterval(interval);
         input.value = "";
     }
 }

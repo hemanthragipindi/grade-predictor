@@ -1,0 +1,91 @@
+<!-- Advanced Branded Loader Component -->
+<div id="nexora-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s ease;">
+    
+    <!-- Animated Brand -->
+    <div id="loader-content" style="text-align: center; transition: 0.5s;">
+        <div class="brand-pulse" style="font-size: 3.5rem; font-weight: 900; color: #fff; letter-spacing: -2px; margin-bottom: 10px;">
+            GRADE<span style="color: var(--primary);">PREDICTOR</span>
+        </div>
+        <p id="loader-tagline" style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 40px;">Predict your future grades instantly</p>
+        
+        <!-- Progress System -->
+        <div style="width: 240px; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; position: relative; margin: 0 auto;">
+            <div id="loader-bar" class="loader-bar" style="position: absolute; height: 100%; background: var(--primary); width: 40%; left: -40%;"></div>
+        </div>
+        
+        <p id="loader-status" style="color: var(--text-muted); font-size: 0.7rem; margin-top: 25px; font-weight: 800; letter-spacing: 2px;">INITIALIZING CORE ENGINE...</p>
+    </div>
+
+    <!-- Error State (Hidden by default) -->
+    <div id="loader-error" style="display: none; text-align: center; max-width: 400px; padding: 20px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+        <h2 style="color: #fff; margin-bottom: 10px; font-weight: 850;">Link Disrupted</h2>
+        <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 25px;">The matrix is taking longer than usual to respond. Please check your connection or refresh the deployment.</p>
+        <button onclick="location.reload()" class="btn-primary" style="background: var(--grade-f);">Retry Protocol</button>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; filter: blur(0px); }
+    50% { transform: scale(1.03); opacity: 1; filter: blur(0.5px); }
+    100% { transform: scale(1); opacity: 0.8; filter: blur(0px); }
+}
+
+@keyframes slide {
+    0% { left: -100%; width: 20%; }
+    50% { left: 40%; width: 60%; }
+    100% { left: 100%; width: 20%; }
+}
+
+.brand-pulse { animation: pulse 2.5s ease-in-out infinite; }
+.loader-bar { animation: slide 1.8s ease-in-out infinite; }
+#nexora-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+</style>
+
+<script>
+const AppLoader = {
+    element: document.getElementById('nexora-loader'),
+    status: document.getElementById('loader-status'),
+    content: document.getElementById('loader-content'),
+    error: document.getElementById('loader-error'),
+    bar: document.getElementById('loader-bar'),
+    
+    timeout: null,
+
+    init() {
+        // Start safety timeout
+        this.timeout = setTimeout(() => {
+            this.showError();
+        }, 12000); // 12 seconds safety net
+
+        window.addEventListener('load', () => {
+            // Wait slightly for any final JS execution
+            setTimeout(() => this.hide(), 800);
+        });
+    },
+
+    hide() {
+        clearTimeout(this.timeout);
+        this.element.classList.add('hidden');
+    },
+
+    show(msg = "PROCESSING...") {
+        this.status.innerText = msg;
+        this.content.style.display = 'block';
+        this.error.style.display = 'none';
+        this.element.classList.remove('hidden');
+    },
+
+    showError() {
+        this.content.style.opacity = '0';
+        setTimeout(() => {
+            this.content.style.display = 'none';
+            this.error.style.display = 'block';
+            this.error.classList.add('animate-in');
+        }, 500);
+    }
+};
+
+AppLoader.init();
+</script>

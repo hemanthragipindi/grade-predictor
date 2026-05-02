@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}Course Matrix | Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="section-header" style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.2rem; font-weight: 850; margin: 0; letter-spacing: -1px;">Strategic Course Matrix</h1>
+        <p style="color: var(--text-muted); margin-top: 5px;">Analytical overview of all active academic modules.</p>
+    </div>
+
+    <div class="panel" style="padding: 0; overflow: hidden; border: 1px solid var(--border-bright);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 800;">
+                    <th style="padding: 20px;">Module Code</th>
+                    <th style="padding: 20px;">Module Name</th>
+                    <th style="padding: 20px;">Projected Grade</th>
+                    <th style="padding: 20px;">Risk Level</th>
+                    <th style="padding: 20px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in results %}
+                <tr style="border-bottom: 1px solid var(--border); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.01)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 20px; font-weight: 850; color: var(--primary);">{{ res.subject.subject_code }}</td>
+                    <td style="padding: 20px; font-weight: 600;">{{ res.subject.subject_name }}</td>
+                    <td style="padding: 20px;">
+                        <span style="display: inline-block; padding: 6px 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); color: var(--grade-o); font-weight: 900; font-size: 1.1rem;">
+                            {{ res.grade }}
+                        </span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">({{ res.score }}%)</span>
+                    </td>
+                    <td style="padding: 20px;">
+                        {% if res.priority == 'High' %}
+                            <span style="color: var(--grade-f); font-weight: 800;">CRITICAL RISK</span>
+                        {% else %}
+                            <span style="color: var(--grade-o); opacity: 0.8;">STABLE</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 20px;">
+                        <a href="{{ url_for('academic.subject_page', subject_id=res.subject.id) }}" class="btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">Adjust Strategy</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

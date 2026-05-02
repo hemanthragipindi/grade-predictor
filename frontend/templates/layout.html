@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Grade Predictor{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;850&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --bg-dark: #0f172a;
+            --panel-dark: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255,255,255,0.06);
+            --border-bright: rgba(255,255,255,0.12);
+            --grade-o: #10b981;
+            --grade-f: #f43f5e;
+        }
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Outfit', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .content-area { padding: 30px; flex: 1; position: relative; }
+        .panel { background: var(--panel-dark); border-radius: 16px; border: 1px solid var(--border); padding: 25px; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2); }
+        .animate-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    {% include 'components/loader.html' %}
+
+    {% if current_user.is_authenticated %}
+        {% include 'components/sidebar.html' %}
+        <div class="main-wrapper">
+            {% include 'components/header.html' %}
+            <main class="content-area">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    {% else %}
+        <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+            {% block auth_content %}{% endblock %}
+            {% block content %}{% endblock %}
+        </div>
+    {% endif %}
+
+    {% include 'components/chatbot.html' %}
+    {% include 'components/toast.html' %}
+</body>
+</html>
