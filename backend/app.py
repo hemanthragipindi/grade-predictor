@@ -1,5 +1,6 @@
 import os
 import datetime
+import logging
 from flask import Flask
 from database import db
 from models import User
@@ -12,6 +13,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Setup logging to see errors on Render
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Initialize App with explicit Frontend paths
 app = Flask(__name__, 
             template_folder='../frontend/templates', 
@@ -23,11 +28,21 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=20)
 # Use absolute path for DB and ensure instance folder exists
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
-if not os.path.exists(INSTANCE_DIR):
-    os.makedirs(INSTANCE_DIR)
+
+try:
+    if not os.path.exists(INSTANCE_DIR):
+        os.makedirs(INSTANCE_DIR)
+        logger.info(f"Created instance directory at {INSTANCE_DIR}")
+except Exception as e:
+    logger.error(f"Failed to create instance directory: {e}")
 
 db_path = os.path.join(INSTANCE_DIR, 'grades.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+# For Linux absolute paths, we need 4 slashes: sqlite:////path/to/db
+if db_path.startswith('/'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+else:
+    # Windows absolute path
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 CORS(app) 
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, '../frontend/static/uploads')
@@ -70,35 +85,33 @@ def inject_globals():
 
 # Auto-Migrations
 with app.app_context():
-    db.create_all()
-    inspector = inspect(db.engine)
-    
-    # ca_marks.weight migration
-    if 'ca_marks' in inspector.get_table_names():
-        cols = [c['name'] for c in inspector.get_columns('ca_marks')]
-        if 'weight' not in cols:
-            try:
+    try:
+        db.create_all()
+        inspector = inspect(db.engine)
+        
+        # ca_marks.weight migration
+        if 'ca_marks' in inspector.get_table_names():
+            cols = [c['name'] for c in inspector.get_columns('ca_marks')]
+            if 'weight' not in cols:
                 db.session.execute(text("ALTER TABLE ca_marks ADD COLUMN weight FLOAT DEFAULT 0.0;"))
                 db.session.commit()
-            except: db.session.rollback()
 
-    # users.created_at migration
-    if 'users' in inspector.get_table_names():
-        cols = [c['name'] for c in inspector.get_columns('users')]
-        if 'created_at' not in cols:
-            try:
+        # users.created_at migration
+        if 'users' in inspector.get_table_names():
+            cols = [c['name'] for c in inspector.get_columns('users')]
+            if 'created_at' not in cols:
                 db.session.execute(text("ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;"))
                 db.session.commit()
-            except: db.session.rollback()
 
-    # cloud_files.public_id migration
-    if 'cloud_files' in inspector.get_table_names():
-        cols = [c['name'] for c in inspector.get_columns('cloud_files')]
-        if 'public_id' not in cols:
-            try:
+        # cloud_files.public_id migration
+        if 'cloud_files' in inspector.get_table_names():
+            cols = [c['name'] for c in inspector.get_columns('cloud_files')]
+            if 'public_id' not in cols:
                 db.session.execute(text("ALTER TABLE cloud_files ADD COLUMN public_id VARCHAR(255);"))
                 db.session.commit()
-            except: db.session.rollback()
+    except Exception as e:
+        logger.error(f"Database Initialization/Migration Error: {e}")
+        db.session.rollback()
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
