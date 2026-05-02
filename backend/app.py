@@ -19,10 +19,17 @@ app = Flask(__name__,
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'nexora-fallback-key-123')
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=20)
-# Use absolute path for DB in production
-db_path = os.path.join(app.root_path, '../backend/instance/grades.db')
+
+# Use absolute path for DB and ensure instance folder exists
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
+if not os.path.exists(INSTANCE_DIR):
+    os.makedirs(INSTANCE_DIR)
+
+db_path = os.path.join(INSTANCE_DIR, 'grades.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-CORS(app) # Enable CORS for all routes
+
+CORS(app) 
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, '../frontend/static/uploads')
 
 # Cloudinary Setup
