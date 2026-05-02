@@ -35,7 +35,7 @@
     </div>
 
     <!-- Main Architecture Grid -->
-    <div class="metrics-row" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 40px;">
+    <div class="metrics-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 40px;">
         <!-- CGPA Hub -->
         <div class="panel" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
             <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Network CGPA</div>
@@ -59,7 +59,7 @@
         <!-- System Load -->
         <div class="panel" style="display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
             <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Cognitive Load</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="display: justify; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">{{ cog_load.status }}</span>
                 <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700;">{{ identity }}</span>
             </div>
@@ -69,55 +69,61 @@
         </div>
     </div>
 
-    <!-- ACTIVE MATRIX PORTAL -->
-    <div style="margin-bottom: 40px;">
-        <a href="{{ url_for('active_matrix') }}" style="text-decoration: none; display: block;">
-            <div class="panel" style="padding: 40px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; border: none; box-shadow: 0 20px 40px rgba(30, 41, 59, 0.2); transition: transform 0.3s ease;">
-                <div>
-                    <h2 style="font-size: 1.8rem; font-weight: 850; margin: 0; letter-spacing: -0.5px;">Enter Active Course Matrix</h2>
-                    <p style="opacity: 0.8; margin-top: 5px; font-weight: 500;">Manage detailed subjects, track sensitivity, and optimize performance vectors.</p>
-                </div>
-                <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <svg width="30" height="30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </div>
+    <!-- Daily Intel Feed & Cloud Upload -->
+    <div class="main-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="left-col">
+            <!-- Active Matrix Portal -->
+            <div style="margin-bottom: 25px;">
+                <a href="{{ url_for('academic.active_matrix') }}" style="text-decoration: none; display: block;">
+                    <div class="panel" style="padding: 40px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; border: none; box-shadow: 0 20px 40px rgba(30, 41, 59, 0.2); transition: transform 0.3s ease;">
+                        <div>
+                            <h2 style="font-size: 1.8rem; font-weight: 850; margin: 0; letter-spacing: -0.5px;">Enter Active Course Matrix</h2>
+                            <p style="opacity: 0.8; margin-top: 5px; font-weight: 500;">Manage detailed subjects, track sensitivity, and optimize performance vectors.</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg width="30" height="30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
 
-    <!-- Daily Intel Feed -->
-    <div class="main-grid" style="grid-template-columns: 2fr 1fr;">
-        <div class="panel">
-            <h3 class="panel-title" style="text-align: left; color: var(--text-main);">System Intel Feed</h3>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                {% for insight in meta_insights %}
-                <div style="display: flex; gap: 15px; border-bottom: 1px solid #eef1f5; padding-bottom: 15px;">
-                    <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
-                    <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">{{ insight }}</p>
+            <div class="panel">
+                <h3 class="panel-title" style="text-align: left; color: var(--text-main);">System Intel Feed</h3>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    {% for insight in meta_insights %}
+                    <div style="display: flex; gap: 15px; border-bottom: 1px solid #eef1f5; padding-bottom: 15px;">
+                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">{{ insight }}</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
 
-        <div class="panel">
-            <h3 class="panel-title" style="text-align: left; color: var(--text-main);">Assessment Integrity Matrix</h3>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                {% if assessments %}
-                    {% for a in assessments[:4] %}
-                    <div style="padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #eef1f5;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">{{ a.subject_code }} - Unit {{ a.unit }}</span>
-                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">{{ a.progress }}%</span>
+        <div class="right-col">
+            <!-- Cloud Upload Integration -->
+            {% include 'components/cloud_upload.html' %}
+
+            <div class="panel" style="margin-top: 25px;">
+                <h3 class="panel-title" style="text-align: left; color: var(--text-main);">Assessment Integrity Matrix</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    {% if assessments %}
+                        {% for a in assessments[:4] %}
+                        <div style="padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #eef1f5;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">{{ a.subject_code }}</span>
+                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">{{ a.progress }}%</span>
+                            </div>
+                            <div style="height: 5px; background: #e2e8f0; border-radius: 2.5px; overflow: hidden;">
+                                <div style="width: {{ a.progress }}%; height: 100%; background: var(--primary);"></div>
+                            </div>
                         </div>
-                        <div style="height: 5px; background: #e2e8f0; border-radius: 2.5px; overflow: hidden;">
-                            <div style="width: {{ a.progress }}%; height: 100%; background: var(--primary); box-shadow: 0 0 5px var(--primary)40;"></div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">No active assessments. Start a new unit to track progress.</p>
-                {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">No active assessments.</p>
+                    {% endif %}
+                </div>
             </div>
-            <a href="{{ url_for('continue_assessment') }}" style="display: block; text-align: center; font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-top: 15px; text-decoration: none;">Manage All Assessments →</a>
         </div>
     </div>
 </div>
@@ -130,28 +136,8 @@
             const res = await fetch('/api/daily-slogan?t=' + Date.now());
             const data = await res.json();
             sloganEl.textContent = `"${data.slogan}"`;
-        } catch(e) {
-            console.error(e);
-        }
+        } catch(e) { console.error(e); }
         sloganEl.style.opacity = '1';
     }
-
-    function toggleDashboardSprint(check) {
-        check.classList.toggle('checked');
-        const text = check.nextElementSibling;
-        text.classList.toggle('completed');
-        
-        // Visual indicator that Nexora is syncing
-        const title = document.querySelector('.panel-title');
-        const originalTitle = "Weekly Tactical Pipeline";
-        title.textContent = "Syncing with Matrix...";
-        setTimeout(() => {
-            title.textContent = originalTitle;
-        }, 800);
-    }
 </script>
-
-<style>
-    .panel:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
-</style>
 {% endblock %}

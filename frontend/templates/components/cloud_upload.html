@@ -1,0 +1,70 @@
+<!-- Cloud Upload Component -->
+<div class="panel" style="margin-top: 25px;">
+    <div class="section-header" style="margin-bottom: 15px;">
+        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-main);">Cloud Artifact Upload</h3>
+        <div class="line"></div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.02);">
+        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--secondary); margin-bottom: 10px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Securely store Images, Videos, or PDFs in the cloud</p>
+        
+        <input type="file" id="cloud-file-input" style="display: none;" onchange="handleCloudUpload(this)">
+        <button onclick="document.getElementById('cloud-file-input').click()" class="btn-primary" id="upload-btn" style="padding: 10px 25px;">Select & Upload Artifact</button>
+        
+        <div id="upload-status" style="margin-top: 15px; font-size: 0.75rem; display: none;"></div>
+    </div>
+
+    <div id="recent-uploads" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+        <!-- Uploaded files will appear here -->
+    </div>
+</div>
+
+<script>
+async function handleCloudUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const status = document.getElementById('upload-status');
+    const btn = document.getElementById('upload-btn');
+    
+    status.innerText = "Syncing with Cloud... Please wait.";
+    status.style.display = 'block';
+    status.style.color = 'var(--text-muted)';
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            status.innerText = "Deployment Successful!";
+            status.style.color = 'var(--grade-o)';
+            showToast("Artifact secured in " + data.provider, "success");
+            
+            // Add to recent list
+            const recent = document.getElementById('recent-uploads');
+            const item = document.createElement('a');
+            item.href = data.url;
+            item.target = "_blank";
+            item.style = "display: block; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; text-decoration: none; font-size: 0.65rem; color: var(--text-muted); border: 1px solid var(--border);";
+            item.innerText = file.name.substring(0, 10) + "...";
+            recent.prepend(item);
+        } else {
+            status.innerText = data.error || "Upload failed.";
+            status.style.color = 'var(--grade-f)';
+        }
+    } catch (e) {
+        status.innerText = "Connection lost.";
+        status.style.color = 'var(--grade-f)';
+    } finally {
+        btn.disabled = false;
+        input.value = "";
+    }
+}
+</script>

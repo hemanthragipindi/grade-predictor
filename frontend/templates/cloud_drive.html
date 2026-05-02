@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+
+{% block title %}Cloud Drive | Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 850; margin: 0; letter-spacing: -1px;">Cloud Archive</h1>
+            <p style="color: var(--text-muted); margin-top: 5px;">Securely manage your academic artifacts across the matrix.</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <div class="panel" style="padding: 10px 20px; text-align: center; min-width: 120px;">
+                <p style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 4px;">Storage Usage</p>
+                <p style="font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0;">{{ files|length }} / 50 <span style="font-size: 0.7rem; color: var(--text-muted);">Files</span></p>
+            </div>
+            <button onclick="document.getElementById('drive-upload-input').click()" class="btn-primary" style="padding: 12px 24px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Upload New Artifact
+            </button>
+            <input type="file" id="drive-upload-input" style="display: none;" onchange="handleDriveUpload(this)">
+        </div>
+    </div>
+
+    <!-- Upload Progress Overlay -->
+    <div id="upload-overlay" style="display: none; margin-bottom: 30px;" class="panel animate-in">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="spinner" style="width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <div style="flex: 1;">
+                <p id="upload-filename" style="font-weight: 700; margin: 0; font-size: 0.9rem;">Uploading artifact...</p>
+                <div style="height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden;">
+                    <div id="upload-progress-bar" style="width: 10%; height: 100%; background: var(--secondary); transition: 0.3s;"></div>
+                </div>
+            </div>
+            <span id="upload-percent" style="font-weight: 800; color: var(--secondary); font-size: 0.8rem;">10%</span>
+        </div>
+    </div>
+
+    <!-- Files Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+        {% if files %}
+            {% for file in files %}
+            <div class="panel file-card" id="file-{{ file.id }}" style="padding: 0; overflow: hidden; transition: 0.3s; border: 1px solid var(--border);">
+                <!-- Preview Area -->
+                <div style="height: 160px; background: #f8fafc; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                    {% if 'image' in file.file_type %}
+                        <img src="{{ file.file_url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% elif 'video' in file.file_type %}
+                        <video style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="{{ file.file_url }}" type="{{ file.file_type }}">
+                        </video>
+                        <div style="position: absolute; background: rgba(0,0,0,0.4); border-radius: 50%; padding: 10px;">
+                            <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    {% else %}
+                        <svg width="60" height="60" fill="none" stroke="var(--text-darker)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    {% endif %}
+                    
+                    <div class="file-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; backdrop-filter: blur(4px);">
+                        {{ file.provider }}
+                    </div>
+                </div>
+
+                <!-- Info Area -->
+                <div style="padding: 20px;">
+                    <h3 style="font-size: 0.95rem; font-weight: 750; margin: 0 0 4px 0; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ file.file_name }}">{{ file.file_name }}</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">{{ file.timestamp.strftime('%d %b, %Y') }} • {{ (file.file_type.split('/')[-1])|upper }}</p>
+                    
+                    <div style="display: flex; gap: 8px;">
+                        <a href="{{ file.file_url }}" target="_blank" class="btn-primary" style="flex: 1; justify-content: center; padding: 8px; font-size: 0.8rem; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border);">Open</a>
+                        <button onclick="confirmDelete('{{ file.id }}')" class="btn-primary" style="padding: 8px; background: rgba(244, 63, 94, 0.1); color: var(--grade-f); border: 1px solid rgba(244, 63, 94, 0.1);">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 100px 0; background: rgba(255,255,255,0.01); border-radius: 20px; border: 2px dashed var(--border);">
+                <div style="font-size: 4rem; margin-bottom: 20px;">☁️</div>
+                <h3 style="font-size: 1.5rem; font-weight: 850; color: var(--text-main);">Your Cloud is Empty</h3>
+                <p style="color: var(--text-muted); margin-bottom: 25px;">Start uploading artifacts to see them synced across your matrix.</p>
+                <button onclick="document.getElementById('drive-upload-input').click()" class="btn-primary" style="margin: 0 auto;">Upload First File</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+    <div class="panel animate-in" style="width: 100%; max-width: 400px; text-align: center; padding: 40px; border: 1px solid var(--grade-f);">
+        <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
+        <h2 style="color: #fff; margin-bottom: 10px;">Delete Artifact?</h2>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">This action is permanent and will remove the file from our cloud servers.</p>
+        <div style="display: flex; gap: 12px;">
+            <button onclick="closeDeleteModal()" class="btn-primary" style="flex: 1; background: var(--bg-dark); color: #fff; border: 1px solid var(--border);">Cancel</button>
+            <button id="confirm-delete-btn" class="btn-primary" style="flex: 1; background: var(--grade-f);">Confirm Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let fileToDelete = null;
+
+function confirmDelete(id) {
+    fileToDelete = id;
+    document.getElementById('delete-modal').style.display = 'flex';
+    document.getElementById('confirm-delete-btn').onclick = () => processDelete(id);
+}
+
+function closeDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+}
+
+async function processDelete(id) {
+    const btn = document.getElementById('confirm-delete-btn');
+    btn.disabled = true;
+    btn.innerText = "Deleting...";
+
+    try {
+        const response = await fetch(`/api/delete-file/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById(`file-${id}`).style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById(`file-${id}`).remove();
+                if (document.querySelectorAll('.file-card').length === 0) location.reload();
+            }, 300);
+            showToast("Artifact purged successfully", "success");
+        } else {
+            showToast("Protocol failure: " + data.error, "warning");
+        }
+    } catch (e) {
+        showToast("Network disruption detected", "warning");
+    } finally {
+        closeDeleteModal();
+        btn.disabled = false;
+        btn.innerText = "Confirm Delete";
+    }
+}
+
+async function handleDriveUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const overlay = document.getElementById('upload-overlay');
+    const bar = document.getElementById('upload-progress-bar');
+    const percent = document.getElementById('upload-percent');
+    const filename = document.getElementById('upload-filename');
+
+    overlay.style.display = 'block';
+    filename.innerText = `Syncing: ${file.name}`;
+    
+    // Fake progress animation for cloud sync
+    let p = 10;
+    const interval = setInterval(() => {
+        if (p < 90) p += Math.random() * 5;
+        bar.style.width = `${p}%`;
+        percent.innerText = `${Math.floor(p)}%`;
+    }, 400);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/upload', { method: 'POST', body: formData });
+        const data = await response.json();
+
+        if (data.success) {
+            bar.style.width = `100%`;
+            percent.innerText = `100%`;
+            showToast("Cloud sync complete!", "success");
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showToast(data.error || "Upload failed", "warning");
+            overlay.style.display = 'none';
+        }
+    } catch (e) {
+        showToast("Cloud link interrupted", "warning");
+        overlay.style.display = 'none';
+    } finally {
+        clearInterval(interval);
+        input.value = "";
+    }
+}
+</script>
+
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.file-card:hover { border-color: var(--secondary) !important; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+</style>
+{% endblock %}

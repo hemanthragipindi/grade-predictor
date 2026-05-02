@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Control Panel{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <div class="section-header" style="margin-bottom: 40px;">
+        <h2 style="font-size: 1.5rem; color: var(--grade-o);">Admin Command Center</h2>
+        <div class="line"></div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="top-grid" style="margin-bottom: 30px;">
+        <div class="panel" style="text-align: center;">
+            <p class="stat-label">Total Cadets</p>
+            <p class="stat-val">{{ stats.total_users }}</p>
+        </div>
+        <div class="panel" style="display: flex; justify-content: space-around; align-items: center;">
+            <div style="text-align: center;">
+                <p class="stat-label">Modules Tracked</p>
+                <p class="stat-val">{{ stats.total_subjects }}</p>
+            </div>
+            <div style="text-align: center;">
+                <p class="stat-label">Sync Reports</p>
+                <p class="stat-val">{{ stats.total_progress }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="panel" style="padding: 0; overflow: hidden;">
+        <div style="padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">User Database</h3>
+            <div class="search-bar" style="max-width: 300px;">
+                <input type="text" placeholder="Search by name or mobile...">
+            </div>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                    <th style="padding: 15px 20px;">Name</th>
+                    <th style="padding: 15px 20px;">Contact</th>
+                    <th style="padding: 15px 20px;">Status</th>
+                    <th style="padding: 15px 20px;">Progress</th>
+                    <th style="padding: 15px 20px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid var(--border); transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.01)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 15px 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: url('https://api.dicebear.com/7.x/avataaars/svg?seed={{ user.name }}') center/cover"></div>
+                            <div>
+                                <p style="margin: 0; font-weight: 600;">{{ user.name }}</p>
+                                <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 15px 20px; font-size: 0.85rem; color: var(--text-muted);">{{ user.mobile }}</td>
+                    <td style="padding: 15px 20px;">
+                        {% if user.is_admin %}
+                        <span style="background: rgba(16, 185, 129, 0.1); color: var(--grade-o); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">ADMIN</span>
+                        {% else %}
+                        <span style="background: rgba(99, 102, 241, 0.1); color: var(--secondary); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">USER</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px 20px;">
+                        <div style="width: 100px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 65%; height: 100%; background: var(--primary);"></div>
+                        </div>
+                    </td>
+                    <td style="padding: 15px 20px;">
+                        <div style="display: flex; gap: 10px;">
+                            <a href="{{ url_for('admin.view_user', user_id=user.id) }}" class="btn-primary" style="padding: 6px 12px; font-size: 0.75rem;">View</a>
+                            {% if not user.is_admin %}
+                            <a href="{{ url_for('admin.make_admin', user_id=user.id) }}" style="color: var(--text-muted); font-size: 0.75rem; text-decoration: none; padding: 6px;">Promote</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

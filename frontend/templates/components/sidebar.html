@@ -1,0 +1,36 @@
+<!-- Sidebar Component -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="architect-brand">
+            <p class="top">NEXORA</p>
+            <p class="sub">Academic Command</p>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('academic.dashboard') }}" class="nav-item {% if request.endpoint == 'academic.dashboard' %}active{% endif %}">
+            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            Dashboard
+        </a>
+        <a href="{{ url_for('academic.active_matrix') }}" class="nav-item {% if request.endpoint == 'academic.active_matrix' %}active{% endif %}">
+            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+            Course Matrix
+        </a>
+        <a href="{{ url_for('academic.cloud_drive') }}" class="nav-item {% if request.endpoint == 'academic.cloud_drive' %}active{% endif %}">
+            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+            Cloud Vault
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{{ url_for('auth.logout') }}" class="user-profile" style="margin-bottom: 15px; text-decoration: none;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <span style="font-size:0.8rem; color:var(--text-muted); cursor:pointer;">Logout</span>
+        </a>
+        <div class="user-profile" style="margin-top:15px; border-top: 1px solid var(--border); padding-top: 15px;">
+            <div class="user-avatar" style="background: url('{% if current_user.profile_pic %}{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}{% else %}https://api.dicebear.com/7.x/avataaars/svg?seed={{ current_user.name }}{% endif %}') center/cover"></div>
+            <div class="user-info">
+                <span class="name">{{ current_user.name }}</span>
+                <span class="role" style="color: var(--grade-o); font-weight: 600;">Zone Active</span>
+            </div>
+        </div>
+    </div>
+</aside>

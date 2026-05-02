@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+
+{% block title %}Authentication | Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+    <div class="panel" style="width: 100%; max-width: 450px; padding: 40px; border: 1px solid var(--border-bright); box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative;">
+        
+        <a href="{{ url_for('admin.login') }}" style="position: absolute; top: 15px; right: 20px; font-size: 0.65rem; color: var(--text-muted); text-decoration: none; text-transform: uppercase; font-weight: 800; border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; transition: 0.3s;" onmouseover="this.style.color='var(--grade-f)'; this.style.borderColor='var(--grade-f)'" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border)'">Admin Portal</a>
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div class="brand-icon" style="width: 48px; height: 48px; margin: 0 auto 15px; font-size: 1.5rem;">A</div>
+            <h1 id="auth-title" style="font-size: 1.8rem; font-weight: 850; margin: 0;">Welcome to Nexora</h1>
+            <p id="auth-subtitle" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Secure academic performance engine</p>
+        </div>
+
+        <!-- Tab Toggle -->
+        <div style="display: flex; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 5px; margin-bottom: 30px; border: 1px solid var(--border-bright);">
+            <button onclick="showAuth('login')" id="tab-login" style="flex: 1; padding: 10px; border: none; border-radius: 8px; background: var(--primary); color: #000; font-weight: 700; cursor: pointer; transition: 0.3s;">Login</button>
+            <button onclick="showAuth('register')" id="tab-register" style="flex: 1; padding: 10px; border: none; border-radius: 8px; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; transition: 0.3s;">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" method="POST" action="{{ url_for('auth.login') }}">
+            <div id="login-step-1">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Mobile Number</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" value="+91" disabled style="width: 60px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: var(--text-muted); padding: 12px; border-radius: 10px; text-align: center;">
+                        <input type="text" id="login-mobile" name="mobile" placeholder="10 Digit Number" required style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 12px; border-radius: 10px; outline: none; transition: 0.3s;">
+                    </div>
+                    <p id="mobile-error" style="color: #f43f5e; font-size: 0.7rem; margin-top: 8px; display: none;">Enter correct mobile number</p>
+                </div>
+                <button type="button" onclick="verifyMobile()" class="btn-primary" style="width: 100%; justify-content: center; padding: 14px;">Next</button>
+            </div>
+
+            <div id="login-step-2" style="display: none;">
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Enter Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 12px; border-radius: 10px; outline: none; box-sizing: border-box;">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 14px;">Access Portal</button>
+                <button type="button" onclick="backToStep1()" style="width: 100%; background: transparent; border: none; color: var(--text-muted); font-size: 0.8rem; margin-top: 15px; cursor: pointer;">Change Mobile Number</button>
+            </div>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" method="POST" action="{{ url_for('auth.register') }}" style="display: none;">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Full Name</label>
+                <input type="text" name="name" placeholder="John Doe" required style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Email ID</label>
+                <input type="email" name="email" placeholder="john@example.com" required style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Mobile Number</label>
+                <div style="display: flex; gap: 8px;">
+                    <select name="country_code" style="width: 80px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 10px; border-radius: 8px; outline: none;">
+                        <option value="+91">+91 (IN)</option>
+                        <option value="+1">+1 (US)</option>
+                        <option value="+44">+44 (UK)</option>
+                        <option value="+971">+971 (UAE)</option>
+                    </select>
+                    <input type="text" name="mobile" placeholder="10 Digit Number" pattern="[0-9]{10}" required style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Password</label>
+                <input type="password" id="reg-pass" name="password" placeholder="••••••••" required style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Confirm Password</label>
+                <input type="password" id="reg-confirm" name="confirm_password" placeholder="••••••••" required style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright); color: #fff; padding: 10px; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 14px;">Create Account</button>
+        </form>
+
+    </div>
+</div>
+
+<!-- Success Popup -->
+<div id="success-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="panel animate-in" style="width: 100%; max-width: 350px; text-align: center; padding: 40px; border: 1px solid var(--primary);">
+        <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+        <h2 style="color: #fff; margin-bottom: 10px;">Registration Successful!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">Your account has been created. You can now login.</p>
+        <button onclick="closePopupAndLogin()" class="btn-primary" style="width: 100%; justify-content: center;">Go to Login</button>
+    </div>
+</div>
+
+<script>
+function showAuth(type) {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const title = document.getElementById('auth-title');
+
+    if (type === 'login') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        tabLogin.style.background = 'var(--primary)';
+        tabLogin.style.color = '#000';
+        tabRegister.style.background = 'transparent';
+        tabRegister.style.color = 'var(--text-muted)';
+        title.innerText = 'Welcome Back';
+    } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        tabRegister.style.background = 'var(--primary)';
+        tabRegister.style.color = '#000';
+        tabLogin.style.background = 'transparent';
+        tabLogin.style.color = 'var(--text-muted)';
+        title.innerText = 'Join Nexora';
+    }
+}
+
+async function verifyMobile() {
+    const mobile = document.getElementById('login-mobile').value;
+    const error = document.getElementById('mobile-error');
+    
+    if (!mobile || mobile.length < 10) {
+        error.innerText = "Enter a valid 10-digit mobile number";
+        error.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/check_mobile?mobile=${mobile}`);
+        const data = await response.json();
+        
+        if (data.exists) {
+            document.getElementById('login-step-1').style.display = 'none';
+            document.getElementById('login-step-2').style.display = 'block';
+            error.style.display = 'none';
+        } else {
+            error.innerText = "Enter correct mobile number (Not Registered)";
+            error.style.display = 'block';
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function backToStep1() {
+    document.getElementById('login-step-1').style.display = 'block';
+    document.getElementById('login-step-2').style.display = 'none';
+}
+
+function closePopupAndLogin() {
+    document.getElementById('success-popup').style.display = 'none';
+    showAuth('login');
+}
+
+// Handle registration success from URL param
+window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('registered') === 'success') {
+        document.getElementById('success-popup').style.display = 'flex';
+    }
+}
+
+// Password matching validation
+document.getElementById('register-form').onsubmit = function(e) {
+    const pass = document.getElementById('reg-pass').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    if (pass !== confirm) {
+        alert("Passwords do not match!");
+        e.preventDefault();
+        return false;
+    }
+    return true;
+};
+</script>
+{% endblock %}
