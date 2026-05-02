@@ -11,6 +11,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(200))
     profile_pic = db.Column(db.String(255), default='default_avatar.jpg')
     is_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 class Subject(db.Model):
     __tablename__ = "subjects"
