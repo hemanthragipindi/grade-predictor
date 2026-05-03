@@ -6,3 +6,5 @@ werkzeug
 cloudinary
 python-dotenv
 gunicorn
+Authlib
+requests

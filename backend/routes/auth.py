@@ -10,11 +10,13 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        raw_mobile = request.form.get("mobile")
-        mobile = re.sub(r'\D', '', raw_mobile) if raw_mobile else None
+        identifier = request.form.get("mobile") # Frontend still uses 'mobile' as name for now
         password = request.form.get("password")
         
-        user = User.query.filter_by(mobile=mobile).first()
+        # Try finding by email or normalized mobile
+        clean_mobile = re.sub(r'\D', '', identifier) if identifier else ""
+        user = User.query.filter((User.email == identifier) | (User.mobile == clean_mobile)).first()
+        
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for("academic.dashboard"))
@@ -25,9 +27,10 @@ def login():
 @auth_bp.route("/api/check-mobile", methods=["POST"])
 def check_mobile():
     data = request.json
-    raw_mobile = data.get("mobile")
-    mobile = re.sub(r'\D', '', raw_mobile) if raw_mobile else None
-    user = User.query.filter_by(mobile=mobile).first()
+    identifier = data.get("mobile")
+    clean_mobile = re.sub(r'\D', '', identifier) if identifier else ""
+    
+    user = User.query.filter((User.email == identifier) | (User.mobile == clean_mobile)).first()
     if user:
         return jsonify({"exists": True})
     return jsonify({"exists": False})
@@ -90,3 +93,45 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))
+
+# Google OAuth Routes
+@auth_bp.route("/google")
+def google_login():
+    from extensions import oauth
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@auth_bp.route("/google/callback")
+def google_callback():
+    from extensions import oauth
+    try:
+        token = oauth.google.authorize_access_token()
+        user_info = token.get('userinfo')
+        
+        if not user_info:
+            flash("Google authentication failed. No user identity received.", "warning")
+            return redirect(url_for("auth.login"))
+        
+        email = user_info.get('email')
+        name = user_info.get('name')
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Create new user for Google login
+            user = User(
+                name=name,
+                email=email,
+                mobile=None,
+                password=None
+            )
+            db.session.add(user)
+            db.session.commit()
+            flash(f"Welcome to Nexora, {name}!", "success")
+        
+        login_user(user)
+        return redirect(url_for("academic.dashboard"))
+        
+    except Exception as e:
+        print(f"OAuth Error: {str(e)}")
+        flash("Google login failed. Please try again.", "warning")
+        return redirect(url_for("auth.login"))

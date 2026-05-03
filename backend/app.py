@@ -10,9 +10,15 @@ from sqlalchemy import text, inspect
 from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
+from authlib.integrations.flask_client import OAuth
+from extensions import oauth
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# OAuth Security: allow insecure transport for local dev only
+if not os.getenv('RENDER'):
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Professional logging
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +45,17 @@ def create_app():
     # Initialize Extensions
     db.init_app(app)
     CORS(app)
+    oauth.init_app(app)
+    
+    oauth.register(
+        name='google',
+        client_id=os.getenv('GOOGLE_CLIENT_ID'),
+        client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
     
     login_manager = LoginManager()
     login_manager.init_app(app)

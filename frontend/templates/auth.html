@@ -24,8 +24,8 @@
             <form id="login-form" method="POST" action="{{ url_for('auth.login') }}">
                 <div id="login-step-1">
                     <div class="form-group" style="margin-bottom: 25px;">
-                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Access Mobile</label>
-                        <input type="tel" name="mobile" id="login-mobile" placeholder="+91 00000 00000" required
+                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Access Identity</label>
+                        <input type="text" name="mobile" id="login-mobile" placeholder="Email or Mobile" required
                                style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s; font-weight: 600;">
                     </div>
                     <button type="button" onclick="verifyMobile()" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Initiate Scan</button>
@@ -76,6 +76,19 @@
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Generate Identity</button>
             </form>
+
+            <!-- Social Login Separator -->
+            <div style="margin: 25px 0; display: flex; align-items: center; gap: 15px;">
+                <div style="flex: 1; height: 1px; background: var(--panel-border);"></div>
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: lowercase;">or continue with</span>
+                <div style="flex: 1; height: 1px; background: var(--panel-border);"></div>
+            </div>
+
+            <!-- Google Login Button -->
+            <a href="{{ url_for('auth.google_login') }}" class="btn-primary" style="background: white; color: var(--text-main); border: 1px solid var(--panel-border); width: 100%; display: flex; justify-content: center; align-items: center; gap: 12px; padding: 15px; font-size: 0.9rem; text-decoration: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: 0.3s;" onmouseover="this.style.background='var(--bg-light)'" onmouseout="this.style.background='white'">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style="width: 20px; height: 20px;">
+                <span>Sign in with Google</span>
+            </a>
         </div>
     </div>
 </div>
@@ -114,9 +127,8 @@ function switchTab(tab) {
 }
 
 async function verifyMobile() {
-    const rawMobile = document.getElementById('login-mobile').value;
-    const mobile = rawMobile.replace(/\D/g, ''); // Normalize for API
-    if (!mobile) return showToast("Identification required", "warning");
+    const rawIdentifier = document.getElementById('login-mobile').value;
+    if (!rawIdentifier) return showToast("Identification required", "warning");
 
     AppLoader.show("SCANNING NODE...");
 
@@ -124,14 +136,14 @@ async function verifyMobile() {
         const res = await fetch('/api/check-mobile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobile: mobile })
+            body: JSON.stringify({ mobile: rawIdentifier })
         });
         const data = await res.json();
         
         if (data.exists) {
             document.getElementById('login-step-1').style.display = 'none';
             document.getElementById('login-step-2').style.display = 'block';
-            document.getElementById('verified-mobile').innerText = rawMobile;
+            document.getElementById('verified-mobile').innerText = rawIdentifier;
             AppLoader.hide();
         } else {
             showToast("Node not found", "warning");
@@ -145,7 +157,10 @@ async function verifyMobile() {
 
 // Mobile Formatter Logic
 function formatMobileInput(e) {
-    let value = e.target.value.replace(/\D/g, '');
+    let value = e.target.value;
+    if (value.includes('@')) return; // Don't format if it looks like an email
+
+    value = value.replace(/\D/g, '');
     if (value.length > 5) {
         value = value.slice(0, 5) + ' ' + value.slice(5, 10);
     }
