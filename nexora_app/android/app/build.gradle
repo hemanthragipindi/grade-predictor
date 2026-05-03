@@ -1,4 +1,3 @@
-def flutterRoot = ""
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -7,7 +6,7 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-flutterRoot = localProperties.getProperty('flutter.sdk')
+def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
     flutterRoot = System.getenv('FLUTTER_ROOT')
 }
@@ -19,6 +18,10 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 android {
     compileSdkVersion 33
     namespace "com.example.nexora_app"
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 
     defaultConfig {
         applicationId "com.example.nexora_app"
