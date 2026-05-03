@@ -2,8 +2,7 @@ name: Build Flutter APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -15,23 +14,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
+          cache: true
 
       - name: Detect Flutter Project
         id: find_flutter
         run: |
           DIR=$(dirname $(find . -name pubspec.yaml | head -n 1))
           echo "FLUTTER_DIR=$DIR" >> $GITHUB_ENV
-          echo "Detected Flutter dir: $DIR"
 
       - name: Install dependencies
         run: flutter pub get
         working-directory: ${{ env.FLUTTER_DIR }}
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-pub
         working-directory: ${{ env.FLUTTER_DIR }}
 
       - name: Upload APK
