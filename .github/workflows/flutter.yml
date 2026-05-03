@@ -37,7 +37,7 @@ jobs:
         working-directory: ${{ env.FLUTTER_DIR }}
 
       - name: Build APK
-        run: flutter build apk --release --no-pub
+        run: flutter build apk --release -v # Added -v for verbose logging
         working-directory: ${{ env.FLUTTER_DIR }}
 
       - name: Upload APK
