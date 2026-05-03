@@ -72,6 +72,11 @@ def dashboard():
                 "unit": a.unit_number
             })
 
+    from models import StudyLog
+    logs = StudyLog.query.filter_by(user_id=current_user.id).all()
+    total_study_hours = sum(l.duration_hours for l in logs) if logs else 0.0
+    avg_study_session = (total_study_hours / len(logs)) if logs else 0.0
+
     return render_template(
         "dashboard.html",
         cgpa=cgpa,
@@ -84,6 +89,8 @@ def dashboard():
         identity=identity,
         meta_insights=meta_insights,
         assessments=assessments,
+        total_study_hours=round(total_study_hours, 1),
+        avg_study_session=round(avg_study_session, 1),
         current_hour=datetime.datetime.now().hour
     )
 

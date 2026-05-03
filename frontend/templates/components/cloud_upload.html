@@ -1,15 +1,15 @@
 <!-- Cloud Upload Component -->
 <div class="panel" style="margin-top: 25px;">
     <div class="section-header" style="margin-bottom: 15px;">
-        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-main);">Cloud Artifact Upload</h3>
+        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-main);">Quick Vault Upload</h3>
         <div class="line"></div>
     </div>
     <div style="display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.02);">
         <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--secondary); margin-bottom: 10px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Securely store Images, Videos, or PDFs in the cloud</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Securely store notes, assignments, or study material</p>
         
         <input type="file" id="cloud-file-input" style="display: none;" onchange="handleCloudUpload(this)">
-        <button onclick="document.getElementById('cloud-file-input').click()" class="btn-primary" id="upload-btn" style="padding: 10px 25px;">Select & Upload Artifact</button>
+        <button onclick="document.getElementById('cloud-file-input').click()" class="btn-primary" id="upload-btn" style="padding: 10px 25px;">Select & Upload File</button>
         
         <div id="upload-status" style="margin-top: 15px; font-size: 0.75rem; display: none;"></div>
     </div>

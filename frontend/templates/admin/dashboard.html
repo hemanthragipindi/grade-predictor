@@ -1,69 +1,92 @@
 {% extends "layout.html" %}
 
-{% block title %}Admin Control Center - Nexora{% endblock %}
+{% block title %}Academic Command Center - Nexora{% endblock %}
 
 {% block content %}
 <div class="container animate-in">
-    <div style="margin-bottom: 40px;">
-        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1px;">System Overview</h1>
-        <p style="color: var(--text-muted);">Real-time monitoring of Nexora architecture.</p>
-    </div>
+    <!-- Header Section -->
+    <header class="dashboard-header" style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div class="header-main">
+            <div class="tier-indicator" style="margin-bottom: 8px;">
+                <span class="badge badge-glow" style="background: var(--grade-f)20; color: var(--grade-f); border: 1px solid var(--grade-f);">
+                    SECURE NODE: ADMIN_MASTER
+                </span>
+            </div>
+            <h1 class="page-title" style="margin: 0; font-size: 2.2rem; letter-spacing: -1px;">System Architecture Overview</h1>
+            <p style="color: var(--text-muted); margin-top: 5px;">Real-time monitoring and administrative control of Nexora nodes.</p>
+        </div>
+        <div style="text-align: right;">
+            <div class="status-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--grade-o); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.75rem; font-weight: 800;">SYSTEM OPERATIONAL</div>
+        </div>
+    </header>
 
     <!-- System Stats -->
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;">
-        <div class="panel" style="text-align: center;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Total Users</div>
-            <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary);">{{ stats.total_users }}</div>
+    <div class="responsive-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;">
+        <div class="panel" style="text-align: center; border-bottom: 3px solid var(--primary);">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Total Identity Nodes</div>
+            <div class="text-gradient" style="font-size: 3rem; font-weight: 900; line-height: 1;">{{ stats.total_users }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Active Users</div>
         </div>
-        <div class="panel" style="text-align: center;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Subjects Tracked</div>
-            <div style="font-size: 2.5rem; font-weight: 900; color: var(--secondary);">{{ stats.total_subjects }}</div>
+        <div class="panel" style="text-align: center; border-bottom: 3px solid var(--secondary);">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Academic Data Points</div>
+            <div class="text-gradient" style="font-size: 3rem; font-weight: 900; line-height: 1;">{{ stats.total_subjects }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Subjects Tracked</div>
         </div>
-        <div class="panel" style="text-align: center;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Progress Modules</div>
-            <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary);">{{ stats.total_progress }}</div>
+        <div class="panel" style="text-align: center; border-bottom: 3px solid var(--grade-f);">
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Progress Vectors</div>
+            <div class="text-gradient" style="font-size: 3rem; font-weight: 900; line-height: 1;">{{ stats.total_progress }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Milestones Defined</div>
         </div>
     </div>
 
     <!-- User Management Table -->
-    <div class="panel">
-        <h3 style="margin-bottom: 25px; font-weight: 850;">User Database</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="text-align: left; border-bottom: 1px solid var(--border);">
-                    <th style="padding: 15px; color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">User</th>
-                    <th style="padding: 15px; color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Contact</th>
-                    <th style="padding: 15px; color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Role</th>
-                    <th style="padding: 15px; color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 15px;">
-                        <div style="font-weight: 700;">{{ user.name }}</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">{{ user.email }}</div>
-                    </td>
-                    <td style="padding: 15px; color: var(--text-muted);">{{ user.mobile }}</td>
-                    <td style="padding: 15px;">
-                        {% if user.is_admin %}
-                        <span class="status-badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">ADMIN</span>
-                        {% else %}
-                        <span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted);">USER</span>
-                        {% endif %}
-                    </td>
-                    <td style="padding: 15px;">
-                        <div style="display: flex; gap: 10px;">
-                            <a href="{{ url_for('admin.view_user', user_id=user.id) }}" class="btn-primary" style="padding: 8px 12px; font-size: 0.8rem;">View Detail</a>
-                            {% if not user.is_admin %}
-                            <a href="{{ url_for('admin.make_admin', user_id=user.id) }}" class="btn-primary" style="padding: 8px 12px; font-size: 0.8rem; background: var(--secondary);">Promote</a>
+    <div class="panel" style="overflow: hidden; padding: 0;">
+        <div style="padding: 25px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
+            <h3 style="margin: 0; font-weight: 850; letter-spacing: -0.5px;">User Directory & Permissions</h3>
+        </div>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; background: rgba(0,0,0,0.2);">
+                        <th style="padding: 18px 25px; color: var(--text-muted); font-size: 0.7rem; font-weight: 850; text-transform: uppercase; letter-spacing: 1px;">Identity Node</th>
+                        <th style="padding: 18px 25px; color: var(--text-muted); font-size: 0.7rem; font-weight: 850; text-transform: uppercase; letter-spacing: 1px;">Access Point</th>
+                        <th style="padding: 18px 25px; color: var(--text-muted); font-size: 0.7rem; font-weight: 850; text-transform: uppercase; letter-spacing: 1px;">Privilege Level</th>
+                        <th style="padding: 18px 25px; color: var(--text-muted); font-size: 0.7rem; font-weight: 850; text-transform: uppercase; letter-spacing: 1px; text-align: right;">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr style="border-bottom: 1px solid var(--panel-border); transition: 0.3s;" onmouseover="this.style.background='rgba(59,130,246,0.03)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 18px 25px;">
+                            <div style="font-weight: 700; font-size: 1rem; color: #fff;">{{ user.name }}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">{{ user.email }}</div>
+                        </td>
+                        <td style="padding: 18px 25px; color: var(--text-muted); font-family: monospace; font-size: 0.9rem;">{{ user.mobile }}</td>
+                        <td style="padding: 18px 25px;">
+                            {% if user.is_admin %}
+                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(239, 68, 68, 0.1); color: var(--grade-f); border-radius: 100px; font-size: 0.65rem; font-weight: 850; border: 1px solid rgba(239, 68, 68, 0.2);">
+                                <span style="width: 6px; height: 6px; background: var(--grade-f); border-radius: 50%;"></span> SYSTEM_ADMIN
+                            </span>
+                            {% else %}
+                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(59, 130, 246, 0.1); color: var(--primary); border-radius: 100px; font-size: 0.65rem; font-weight: 850; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                <span style="width: 6px; height: 6px; background: var(--primary); border-radius: 50%;"></span> DATA_USER
+                            </span>
                             {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td style="padding: 18px 25px; text-align: right;">
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <a href="{{ url_for('admin.view_user', user_id=user.id) }}" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; font-weight: 850;">AUDIT</a>
+                                {% if not user.is_admin %}
+                                <a href="{{ url_for('admin.make_admin', user_id=user.id) }}" class="btn-primary" style="padding: 8px 16px; font-size: 0.75rem; font-weight: 850; background: var(--secondary);">ELEVATE</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
+

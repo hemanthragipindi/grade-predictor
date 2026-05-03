@@ -3,7 +3,11 @@
     <div class="sidebar-header">
         <div class="architect-brand">
             <p class="top">NEXORA</p>
-            <p class="sub">Academic Command</p>
+            {% if current_user.is_admin %}
+            <p class="sub" style="color: var(--grade-f); letter-spacing: 2px;">Academic Command</p>
+            {% else %}
+            <p class="sub" style="color: var(--primary);">Student Nexus</p>
+            {% endif %}
         </div>
     </div>
     <nav class="sidebar-nav">
