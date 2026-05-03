@@ -1,8 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.nexora_app">
     <application
-        android:label="nexora_app"
-        android:icon="@mipmap/ic_launcher">
+        android:label="nexora_app">
         
         <meta-data
             android:name="flutterEmbedding"
