@@ -5,11 +5,14 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Flutter
@@ -17,11 +20,16 @@ jobs:
         with:
           flutter-version: '3.22.0'
 
+      - name: Flutter Doctor
+        run: flutter doctor
+
       - name: Install dependencies
         run: flutter pub get
+        working-directory: .
 
       - name: Build APK
         run: flutter build apk --release
+        working-directory: .
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
