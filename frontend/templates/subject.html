@@ -1,171 +1,133 @@
 {% extends "layout.html" %}
 
-{% block title %}{{ subject.subject_code }} Detail | Nexora{% endblock %}
+{% block title %}{{ subject.subject_code }} Analysis | Nexora{% endblock %}
 
 {% block content %}
-<div class="container animate-in">
-    <!-- Top Navigation Bar -->
-    <div class="top-bar-minimal" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <a href="{{ url_for('academic.active_matrix') }}" class="nav-back-link" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            Matrix Overview
-        </a>
-        <div class="calibration-label" style="font-weight: 850; font-size: 0.8rem; color: var(--primary); letter-spacing: 2px;">MODULE CALIBRATION</div>
-    </div>
-
-    <!-- Subject Hero Section -->
-    <section class="panel subject-hero" style="background: linear-gradient(135deg, var(--panel-dark), #172554); margin-bottom: 30px; padding: 40px; position: relative; overflow: hidden;">
-        <div class="hero-content" style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
-            <div class="hero-info">
-                <p class="subject-code" style="color: var(--primary); font-weight: 800; font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">{{ subject.subject_code }}</p>
-                <h1 class="subject-title" style="font-size: 2.5rem; margin: 0;">{{ subject.subject_name }}</h1>
-            </div>
-            <div class="grade-capsule" style="text-align: center; background: rgba(255,255,255,0.05); padding: 20px 40px; border-radius: 24px; border: 1px solid var(--panel-border); backdrop-filter: blur(10px);">
-                <p style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px;">Projected Outcome</p>
-                <p class="text-gradient" style="font-size: 3.5rem; font-weight: 900; color: var(--grade-o); line-height: 1; margin: 0;">{{ grade }}</p>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">{{ score }}% Combined</p>
+<div class="subject-container animate-in">
+    <!-- Header -->
+    <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 850; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Module ID: {{ subject.id }}</div>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">{{ subject.subject_code }}<span style="color: var(--primary);">.INTELLIGENCE</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">{{ subject.subject_name }}</p>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <a href="?edit=1" class="btn-primary" style="background: var(--bg-light); color: var(--text-main); border: 1px solid var(--panel-border); padding: 12px 25px;">Enter Sandbox</a>
+            <div class="score-badge" style="background: var(--primary); color: white; padding: 12px 25px; border-radius: 12px; text-align: right;">
+                <div style="font-size: 0.6rem; font-weight: 850; opacity: 0.8; text-transform: uppercase;">Projected Score</div>
+                <div style="font-size: 1.4rem; font-weight: 850;">{{ score }} / 100</div>
             </div>
         </div>
-        <div style="position: absolute; right: -50px; bottom: -50px; width: 200px; height: 200px; background: var(--primary); filter: blur(100px); opacity: 0.1; pointer-events: none;"></div>
-    </section>
+    </header>
 
-    <form method="POST">
-        <div class="responsive-grid main-grid" style="grid-template-columns: 2fr 1fr;">
-            <div class="left-col">
-                <!-- Assessment Parameters -->
-                <div class="panel" style="padding: 0; overflow: hidden;">
-                    <div style="padding: 20px; border-bottom: 1px solid var(--panel-border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
-                        <h3 style="margin: 0;">Assessment Parameters</h3>
-                        {% if not edit_mode %}
-                        <a href="?edit=1" class="btn-edit" style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; padding: 6px 12px; background: rgba(59,130,246,0.1); border-radius: 8px;">Enable Modification</a>
-                        {% endif %}
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px;">
+        <!-- Data Entry Matrix -->
+        <div class="panel" style="padding: 30px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Module Component Matrix</h3>
+            
+            <form method="POST" id="matrix-form">
+                {% for comp in components %}
+                {% if comp.component_name != "Continuous Assessment" %}
+                <div class="form-group" style="margin-bottom: 20px; padding: 20px; border-radius: 12px; background: var(--bg-light); border: 1px solid var(--panel-border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 850; color: var(--text-main);">{{ comp.component_name }}</div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">Weight: {{ comp.weight }}% | Max: {{ comp.max_marks }}</div>
                     </div>
-                    
-                    <div style="padding: 20px;">
-                        {% for comp in components %}
-                        <div class="comp-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--panel-border);">
-                            <div class="comp-info" style="flex: 1;">
-                                <p style="font-weight: 700; margin: 0; font-size: 1rem;">{{ comp.component_name }}</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">Strategic Weight: {{ comp.weight }}%</p>
-                            </div>
-                            
-                            <div class="comp-input-group" style="display: flex; gap: 15px; align-items: center;">
-                                {% if comp.component_name == "Continuous Assessment" %}
-                                    <div style="text-align: right; color: var(--primary); font-weight: 800; font-size: 0.8rem;">Sub-Matrix Control</div>
-                                {% else %}
-                                    <input type="number" name="marks_{{ comp.id }}" step="0.1" value="{{ entered_marks.get(comp.id, 0) }}" 
-                                           {% if not edit_mode %}disabled{% endif %}
-                                           style="width: 80px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 700;">
-                                    <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">/ {{ comp.max_marks }}</span>
-                                {% endif %}
-                            </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="number" step="0.1" name="marks_{{ comp.id }}" value="{{ entered_marks.get(comp.id, 0) }}" 
+                               {% if not edit_mode %}readonly{% endif %}
+                               style="width: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); text-align: center; font-weight: 850; color: var(--primary); outline: none;">
+                        <span style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted);">/{{ comp.max_marks }}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                <!-- CA Breakdown -->
+                <div style="margin-top: 35px;">
+                    <h4 style="font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Continuous Assessment Breakdown</h4>
+                    <div id="ca-container">
+                        {% for ca in ca_data %}
+                        <div class="ca-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; margin-bottom: 15px;">
+                            <input type="number" step="0.1" name="ca_marks[]" value="{{ ca.marks }}" placeholder="Marks" {% if not edit_mode %}readonly{% endif %} style="padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-weight: 700;">
+                            <input type="number" step="0.1" name="ca_max[]" value="{{ ca.max }}" placeholder="Max" {% if not edit_mode %}readonly{% endif %} style="padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-weight: 700;">
+                            <input type="number" step="0.1" name="ca_weights[]" value="{{ ca.weight }}" placeholder="Weight" {% if not edit_mode %}readonly{% endif %} style="padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-weight: 700;">
+                            {% if edit_mode %}
+                            <button type="button" onclick="this.parentElement.remove()" style="background: #fef2f2; color: #ef4444; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer;">✕</button>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>
-                </div>
-
-                <!-- Continuous Assessment Matrix -->
-                <div class="panel" style="margin-top: 30px; padding: 0; overflow: hidden;">
-                    <div style="padding: 20px; border-bottom: 1px solid var(--panel-border); background: rgba(255,255,255,0.02);">
-                        <h3 style="margin: 0;">Continuous Assessment Sub-Matrix</h3>
-                    </div>
-                    <div class="table-responsive" style="overflow-x: auto;">
-                        <table style="width: 100%; min-width: 500px; border-collapse: collapse;">
-                            <thead>
-                                <tr style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">
-                                    <th style="padding: 20px; text-align: left;">Item</th>
-                                    <th style="padding: 20px; text-align: center;">Marks</th>
-                                    <th style="padding: 20px; text-align: center;">Max</th>
-                                    <th style="padding: 20px; text-align: center;">Weight</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for i in range(4) %}
-                                <tr style="border-bottom: 1px solid var(--panel-border);">
-                                    <td style="padding: 15px 20px; font-weight: 700;">CA {{ i+1 }}</td>
-                                    <td style="padding: 15px 20px; text-align: center;">
-                                        <input type="number" name="ca_marks[]" step="0.1" value="{{ ca_data[i].marks if i < ca_data|length else 0 }}" 
-                                               {% if not edit_mode %}disabled{% endif %}
-                                               style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 8px; border-radius: 8px; text-align: center;">
-                                    </td>
-                                    <td style="padding: 15px 20px; text-align: center;">
-                                        <input type="number" name="ca_max[]" step="0.1" value="{{ ca_data[i].max if i < ca_data|length else (30 if not is_prac else 100) }}" 
-                                               {% if not edit_mode %}disabled{% endif %}
-                                               style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 8px; border-radius: 8px; text-align: center;">
-                                    </td>
-                                    <td style="padding: 15px 20px; text-align: center;">
-                                        <input type="number" name="ca_weights[]" step="0.1" value="{{ ca_data[i].weight if i < ca_data|length else 0 }}" 
-                                               {% if not edit_mode %}disabled{% endif %}
-                                               style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 8px; border-radius: 8px; text-align: center;">
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Strategy Control Sidebar -->
-            <div class="right-col">
-                <div class="panel strategy-engine-card" style="position: sticky; top: 30px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                        <div style="width: 12px; height: 12px; background: var(--primary); border-radius: 3px; box-shadow: 0 0 10px var(--primary);"></div>
-                        <h3 style="margin: 0;">Strategy Engine</h3>
-                    </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px;">
-                        Calibrate your current scores and weights to project future outcomes. Changes here are saved directly to your academic matrix.
-                    </p>
-                    
                     {% if edit_mode %}
-                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; background: var(--secondary); box-shadow: 0 10px 20px -5px rgba(16,185,129,0.3);">Sync Parameters</button>
-                    <a href="?" style="display: block; text-align: center; margin-top: 15px; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 600;">Discard Changes</a>
-                    {% else %}
-                    <div style="padding: 20px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59,130,246,0.3);">
-                        <p style="margin: 0; font-weight: 700; color: var(--primary); font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
-                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
-                            Intelligence Locked
-                        </p>
-                        <p style="margin: 8px 0 0 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">Enable modification to adjust weights and test sandbox scenarios.</p>
-                    </div>
+                    <button type="button" onclick="addCARow()" style="width: 100%; padding: 12px; background: var(--bg-light); border: 1px dashed var(--panel-border); border-radius: 12px; color: var(--primary); font-weight: 850; margin-top: 10px; cursor: pointer;">+ ADD CA COMPONENT</button>
                     {% endif %}
                 </div>
+
+                {% if edit_mode %}
+                <div style="margin-top: 40px; display: flex; gap: 15px;">
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 18px;">SYNCHRONIZE MATRIX</button>
+                    <a href="{{ url_for('academic.subject_page', subject_id=subject.id) }}" class="btn-primary" style="background: white; border: 1px solid var(--panel-border); color: var(--text-main); padding: 18px 30px;">CANCEL</a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Predictive Intelligence -->
+        <div class="sidebar-matrix">
+            <div class="panel" style="padding: 30px; margin-bottom: 25px; background: var(--text-main); color: white; border: none;">
+                <h3 style="font-size: 0.75rem; font-weight: 850; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 25px;">Predictive Grade Targets</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;">
+                            <span style="font-size: 1.5rem; font-weight: 850;">GRADE O</span>
+                            <span style="font-size: 0.75rem; font-weight: 850; color: var(--primary);">REQUIRED: 90%</span>
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.7; line-height: 1.4;">Need <b>82.5</b> in pending ETE modules to secure this target.</div>
+                    </div>
+                    <div style="padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;">
+                            <span style="font-size: 1.5rem; font-weight: 850;">GRADE A+</span>
+                            <span style="font-size: 0.75rem; font-weight: 850; color: #10b981;">REQUIRED: 80%</span>
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.7; line-height: 1.4;">Need <b>64.0</b> in pending ETE modules to secure this target.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="padding: 30px;">
+                <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Tactical Insights</h3>
+                <ul style="padding: 0; margin: 0; list-style: none;">
+                    <li style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <span style="width: 20px; height: 20px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span style="width: 6px; height: 6px; background: #ef4444; border-radius: 50%;"></span></span>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; line-height: 1.4;">Attendance is below 75%. Automated penalty of -5 points may be applied to internal matrix.</p>
+                    </li>
+                    <li style="display: flex; gap: 15px;">
+                        <span style="width: 20px; height: 20px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span style="width: 6px; height: 6px; background: #22c55e; border-radius: 50%;"></span></span>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; line-height: 1.4;">Subject sensitivity is High. Every 1 point gained here adds 0.04 to overall CGPA.</p>
+                    </li>
+                </ul>
             </div>
         </div>
-    </form>
+    </div>
 </div>
 
-<style>
-@media (max-width: 768px) {
-    .subject-hero {
-        padding: 30px 20px !important;
-    }
-    .hero-content {
-        flex-direction: column;
-        gap: 25px;
-        align-items: flex-start !important;
-    }
-    .hero-info .subject-title {
-        font-size: 1.8rem !important;
-    }
-    .grade-capsule {
-        width: 100%;
-        padding: 15px !important;
-    }
-    .comp-row {
-        flex-direction: column;
-        align-items: flex-start !important;
-        gap: 15px;
-    }
-    .comp-input-group {
-        width: 100%;
-        justify-content: space-between;
-    }
-    .strategy-engine-card {
-        position: static !important;
-        margin-top: 20px;
-    }
+<script>
+function addCARow() {
+    const container = document.getElementById('ca-container');
+    const div = document.createElement('div');
+    div.className = 'ca-row';
+    div.style.display = 'grid';
+    div.style.gridTemplateColumns = '1fr 1fr 1fr auto';
+    div.style.gap = '15px';
+    div.style.marginBottom = '15px';
+    div.innerHTML = `
+        <input type="number" step="0.1" name="ca_marks[]" placeholder="Marks" style="padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-weight: 700;">
+        <input type="number" step="0.1" name="ca_max[]" placeholder="Max" style="padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-weight: 700;">
+        <input type="number" step="0.1" name="ca_weights[]" placeholder="Weight" style="padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-weight: 700;">
+        <button type="button" onclick="this.parentElement.remove()" style="background: #fef2f2; color: #ef4444; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer;">✕</button>
+    `;
+    container.appendChild(div);
 }
-</style>
+</script>
 {% endblock %}
-

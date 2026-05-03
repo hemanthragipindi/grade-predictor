@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block title %}Neural Analytics | Nexora{% endblock %}
+
+{% block content %}
+<div class="analytics-container animate-in">
+    <!-- Header -->
+    <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">NEURAL<span style="color: var(--primary);">ANALYTICS</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Deep-matrix performance synthesis</p>
+        </div>
+        <div class="cgpa-badge" style="background: var(--bg-light); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--panel-border); text-align: right;">
+            <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Network CGPA</div>
+            <div style="font-size: 1.5rem; font-weight: 850; color: var(--primary);">{{ "%.2f"|format(cgpa) }}</div>
+        </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px;">
+        <!-- Mastery Radar -->
+        <div class="panel" style="padding: 25px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Mastery Distribution Radar</h3>
+            <div style="height: 350px;">
+                <canvas id="masteryRadar"></canvas>
+            </div>
+        </div>
+
+        <!-- Best Action Card -->
+        <div class="panel" style="padding: 25px; background: var(--primary); color: white; border: none; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+            <h3 style="font-size: 0.7rem; font-weight: 850; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 15px;">Tactical Recommendation</h3>
+            {% if best_action %}
+            <div style="font-size: 2.5rem; font-weight: 850; letter-spacing: -2px; line-height: 1; margin-bottom: 10px;">{{ best_action.subject_code }}</div>
+            <p style="font-weight: 600; opacity: 0.9; margin-bottom: 25px;">Highest yield subject detected. Improving this module will have the maximum impact on your Network CGPA.</p>
+            <a href="{{ url_for('academic.subject_page', subject_id=best_action.id) }}" class="btn-primary" style="background: white; color: var(--primary); width: fit-content; border: none;">Execute Recovery</a>
+            {% else %}
+            <p>No subjects detected in matrix.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+        <!-- ROI Analysis -->
+        <div class="panel" style="padding: 25px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">ROI Optimization Table</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--panel-border);">
+                        <th style="text-align: left; padding: 12px 0; font-size: 0.7rem; color: var(--text-muted);">MODULE</th>
+                        <th style="text-align: right; padding: 12px 0; font-size: 0.7rem; color: var(--text-muted);">ROI SCORE</th>
+                        <th style="text-align: right; padding: 12px 0; font-size: 0.7rem; color: var(--text-muted);">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in roi_analysis %}
+                    <tr style="border-bottom: 1px solid var(--bg-light);">
+                        <td style="padding: 15px 0; font-weight: 800; color: var(--text-main);">{{ item.subject }}</td>
+                        <td style="padding: 15px 0; text-align: right; font-weight: 700; color: var(--primary);">{{ item.roi }}x</td>
+                        <td style="padding: 15px 0; text-align: right;">
+                            <span style="padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 850; {% if item.status == 'High' %}background: #fef2f2; color: #ef4444;{% else %}background: #f0fdf4; color: #22c55e;{% endif %}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Drop vs Improve Audit -->
+        <div class="panel" style="padding: 25px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Drop vs Improve Audit</h3>
+            {% for audit in drop_vs_improve %}
+            <div style="margin-bottom: 20px; padding: 15px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--bg-light);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div style="font-size: 0.85rem; font-weight: 850; color: var(--text-main); text-transform: uppercase;">{{ audit.domain }}</div>
+                    <div style="font-size: 0.65rem; font-weight: 850; color: #ef4444;">RISK: {{ audit.risk }}</div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">{{ audit.rec }}</p>
+                <div style="font-size: 0.6rem; font-weight: 850; letter-spacing: 1px; color: var(--primary);">DIRECTIVE: {{ audit.action }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('masteryRadar').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: {{ radar_data.labels | tojson }},
+            datasets: [{
+                label: 'Proficiency Level',
+                data: {{ radar_data.data | tojson }},
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderColor: '#3b82f6',
+                borderWidth: 2,
+                pointBackgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

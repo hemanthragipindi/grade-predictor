@@ -84,13 +84,22 @@
                 </a>
             </div>
 
-            <div class="panel">
-                <h3 style="margin-bottom: 20px;">System Intel Feed</h3>
-                <div style="display: flex; flex-direction: column; gap: 20px;">
-                    {% for insight in meta_insights %}
-                    <div style="display: flex; gap: 15px; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px;">
-                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
-                        <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; font-weight: 500;">{{ insight }}</p>
+            <!-- Neural Insights & Quick Actions -->
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 25px; margin-bottom: 25px;">
+                <div class="panel" style="padding: 25px; background: var(--primary); color: white; border: none; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; right: -10px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                    <h3 style="font-size: 0.7rem; font-weight: 850; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 15px; color: white;">Target Priority</h3>
+                    <div style="font-size: 2rem; font-weight: 850; letter-spacing: -1.5px; margin-bottom: 10px; line-height: 1;">{{ meta_insights[0] if meta_insights else "SYSTEM READY" }}</div>
+                    <p style="font-size: 0.85rem; font-weight: 600; opacity: 0.9; margin-bottom: 20px;">Optimization protocol suggests immediate focus on high-sensitivity assets.</p>
+                    <a href="{{ url_for('academic.analytics') }}" class="btn-primary" style="background: white; color: var(--primary); width: fit-content; padding: 10px 20px; border: none;">View Neural Map</a>
+                </div>
+
+                <div class="panel" style="padding: 25px;">
+                    <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Strategic Intel Feed</h3>
+                    {% for insight in meta_insights[1:4] %}
+                    <div style="display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--bg-light); last-child: border-bottom: none;">
+                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 5px; flex-shrink: 0;"></div>
+                        <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin: 0; line-height: 1.4;">{{ insight }}</p>
                     </div>
                     {% endfor %}
                 </div>

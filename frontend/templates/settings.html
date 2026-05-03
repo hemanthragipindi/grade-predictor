@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}Architecture Settings | Nexora{% endblock %}
+
+{% block content %}
+<div class="settings-container animate-in" style="max-width: 900px;">
+    <header class="content-header" style="margin-bottom: 35px;">
+        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">SYSTEM<span style="color: var(--primary);">SETTINGS</span></h1>
+        <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Configure neural interface parameters</p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div style="padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-weight: 700; font-size: 0.9rem; {% if category == 'success' %}background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;{% else %}background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('academic.settings') }}" method="POST">
+        <!-- Identity Config -->
+        <div class="panel" style="padding: 30px; margin-bottom: 25px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Identity Configuration</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Display Name</label>
+                    <input type="text" name="display_name" value="{{ settings.display_name or current_user.name }}" 
+                           style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Strategic Email</label>
+                    <input type="email" name="strategic_email" value="{{ settings.strategic_email or current_user.email }}" 
+                           style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Gateway -->
+        <div class="panel" style="padding: 30px; margin-bottom: 25px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Notification Gateway (Ntfy.sh)</h3>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Target Topic ID</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" name="ntfy_topic" value="{{ settings.ntfy_topic or '' }}" placeholder="nexora_user_unique_id"
+                           style="flex: 1; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
+                    <button type="button" onclick="testNotification()" class="btn-primary" style="background: var(--bg-light); color: var(--text-main); border: 1px solid var(--panel-border); width: fit-content; padding: 0 20px;">Test Signal</button>
+                </div>
+                <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 10px; font-weight: 600;">Direct scoring updates will be broadcast to ntfy.sh/your_topic</p>
+            </div>
+        </div>
+
+        <!-- AI Core Settings -->
+        <div class="panel" style="padding: 30px; margin-bottom: 35px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">AI Core Parameters</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Model Personality</label>
+                    <select name="ai_personality" style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
+                        <option value="strategic" {% if settings.ai_personality == 'strategic' %}selected{% endif %}>Strategic Advisor</option>
+                        <option value="direct" {% if settings.ai_personality == 'direct' %}selected{% endif %}>Direct Auditor</option>
+                        <option value="encouraging" {% if settings.ai_personality == 'encouraging' %}selected{% endif %}>Motivation Matrix</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 15px; padding-top: 30px;">
+                    <input type="checkbox" name="enable_predictive" id="enable_predictive" {% if settings.enable_predictive == 'on' %}checked{% endif %} style="width: 20px; height: 20px; accent-color: var(--primary);">
+                    <label for="enable_predictive" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); cursor: pointer;">Enable Predictive Scoring Matrix</label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 1px;">SYNCHRONIZE SYSTEM PARAMETERS</button>
+    </form>
+</div>
+
+<script>
+async function testNotification() {
+    const topic = document.querySelector('input[name="ntfy_topic"]').value;
+    if (!topic) return showToast("Topic ID required", "warning");
+    
+    AppLoader.show("TRANSMITTING SIGNAL...");
+    try {
+        const res = await fetch('/api/test_notification', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({topic: topic})
+        });
+        const data = await res.json();
+        if (data.success) showToast("Signal Received!", "success");
+        else showToast("Transmission Failed", "error");
+    } catch(e) {
+        showToast("Signal Interrupted", "error");
+    }
+    AppLoader.hide();
+}
+</script>
+{% endblock %}

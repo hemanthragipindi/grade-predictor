@@ -1,176 +1,100 @@
 {% extends "layout.html" %}
 
-{% block title %}Cloud Drive | Nexora{% endblock %}
+{% block title %}Cloud Vault | Nexora{% endblock %}
 
 {% block content %}
-<div class="container animate-in">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px;">
+<div class="vault-container animate-in">
+    <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;">
         <div>
-            <h1 style="font-size: 2.2rem; font-weight: 850; margin: 0; letter-spacing: -1px;">Cloud Archive</h1>
-            <p style="color: var(--text-muted); margin-top: 5px;">Securely manage your academic artifacts across the matrix.</p>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">CLOUD<span style="color: var(--primary);">VAULT</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Secure academic artifact repository</p>
         </div>
-        <div style="display: flex; gap: 12px;">
-            <div class="panel" style="padding: 10px 20px; text-align: center; min-width: 120px;">
-                <p style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 4px;">Storage Usage</p>
-                <p style="font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0;">{{ files|length }} / 50 <span style="font-size: 0.7rem; color: var(--text-muted);">Files</span></p>
-            </div>
-            <button onclick="document.getElementById('drive-upload-input').click()" class="btn-primary" style="padding: 12px 24px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Upload New Artifact
-            </button>
-            <input type="file" id="drive-upload-input" style="display: none;" onchange="handleDriveUpload(this)">
+        <div style="display: flex; gap: 15px;">
+            <button onclick="document.getElementById('file-input').click()" class="btn-primary" style="padding: 12px 25px;">+ SECURE ARTIFACT</button>
+            <input type="file" id="file-input" style="display: none;" onchange="uploadArtifact(this)">
         </div>
-    </div>
+    </header>
 
-    <!-- Upload Progress Overlay -->
-    <div id="upload-overlay" style="display: none; margin-bottom: 30px;" class="panel animate-in">
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div class="spinner" style="width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <div style="flex: 1;">
-                <p id="upload-filename" style="font-weight: 700; margin: 0; font-size: 0.9rem;">Uploading artifact...</p>
-                <div style="height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden;">
-                    <div id="upload-progress-bar" style="width: 10%; height: 100%; background: var(--secondary); transition: 0.3s;"></div>
-                </div>
-            </div>
-            <span id="upload-percent" style="font-weight: 800; color: var(--secondary); font-size: 0.8rem;">10%</span>
-        </div>
-    </div>
-
-    <!-- Files Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
-        {% if files %}
+    <div class="panel" style="padding: 0; overflow: hidden;">
+        <div id="artifact-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--panel-border);">
             {% for file in files %}
-            <div class="panel file-card" id="file-{{ file.id }}" style="padding: 0; overflow: hidden; transition: 0.3s; border: 1px solid var(--border);">
-                <!-- Preview Area -->
-                <div style="height: 160px; background: #f8fafc; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                    {% if 'image' in file.file_type %}
-                        <img src="{{ file.file_url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                    {% elif 'video' in file.file_type %}
-                        <video style="width: 100%; height: 100%; object-fit: cover;">
-                            <source src="{{ file.file_url }}" type="{{ file.file_type }}">
-                        </video>
-                        <div style="position: absolute; background: rgba(0,0,0,0.4); border-radius: 50%; padding: 10px;">
-                            <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                    {% else %}
-                        <svg width="60" height="60" fill="none" stroke="var(--text-darker)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    {% endif %}
-                    
-                    <div class="file-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; backdrop-filter: blur(4px);">
-                        {{ file.provider }}
+            <div class="artifact-card" style="background: white; padding: 25px; transition: 0.3s;" onmouseover="this.style.background='var(--bg-light)'" onmouseout="this.style.background='white'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                    <div style="width: 50px; height: 50px; background: var(--bg-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                        {% if 'image' in file.file_type %}
+                        <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        {% elif 'video' in file.file_type %}
+                        <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        {% else %}
+                        <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        {% endif %}
                     </div>
+                    <button onclick="purgeArtifact({{ file.id }})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 5px; opacity: 0.5; transition: 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
+                        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
                 </div>
-
-                <!-- Info Area -->
-                <div style="padding: 20px;">
-                    <h3 style="font-size: 0.95rem; font-weight: 750; margin: 0 0 4px 0; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ file.file_name }}">{{ file.file_name }}</h3>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">{{ file.timestamp.strftime('%d %b, %Y') }} • {{ (file.file_type.split('/')[-1])|upper }}</p>
-                    
-                    <div style="display: flex; gap: 8px;">
-                        <a href="{{ file.file_url }}" target="_blank" class="btn-primary" style="flex: 1; justify-content: center; padding: 8px; font-size: 0.8rem; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border);">Open</a>
-                        <button onclick="confirmDelete('{{ file.id }}')" class="btn-primary" style="padding: 8px; background: rgba(244, 63, 94, 0.1); color: var(--grade-f); border: 1px solid rgba(244, 63, 94, 0.1);">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </div>
+                
+                <div style="font-size: 0.95rem; font-weight: 850; color: var(--text-main); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ file.file_name }}</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">{{ file.file_type.split('/')[1] }} Archive</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                    <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">{{ file.timestamp.strftime('%Y-%m-%d') }}</div>
+                    <a href="{{ file.file_url }}" target="_blank" style="font-size: 0.75rem; font-weight: 850; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                        VIEW
+                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
                 </div>
             </div>
             {% endfor %}
-        {% else %}
-            <div style="grid-column: 1 / -1; text-align: center; padding: 100px 0; background: rgba(255,255,255,0.01); border-radius: 20px; border: 2px dashed var(--border);">
-                <div style="font-size: 4rem; margin-bottom: 20px;">☁️</div>
-                <h3 style="font-size: 1.5rem; font-weight: 850; color: var(--text-main);">Your Cloud is Empty</h3>
-                <p style="color: var(--text-muted); margin-bottom: 25px;">Start uploading artifacts to see them synced across your matrix.</p>
-                <button onclick="document.getElementById('drive-upload-input').click()" class="btn-primary" style="margin: 0 auto;">Upload First File</button>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div id="delete-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
-    <div class="panel animate-in" style="width: 100%; max-width: 400px; text-align: center; padding: 40px; border: 1px solid var(--grade-f);">
-        <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
-        <h2 style="color: #fff; margin-bottom: 10px;">Delete Artifact?</h2>
-        <p style="color: var(--text-muted); margin-bottom: 25px;">This action is permanent and will remove the file from our cloud servers.</p>
-        <div style="display: flex; gap: 12px;">
-            <button onclick="closeDeleteModal()" class="btn-primary" style="flex: 1; background: var(--bg-dark); color: #fff; border: 1px solid var(--border);">Cancel</button>
-            <button id="confirm-delete-btn" class="btn-primary" style="flex: 1; background: var(--grade-f);">Confirm Delete</button>
         </div>
     </div>
 </div>
 
 <script>
-let fileToDelete = null;
-
-function confirmDelete(id) {
-    fileToDelete = id;
-    document.getElementById('delete-modal').style.display = 'flex';
-    document.getElementById('confirm-delete-btn').onclick = () => processDelete(id);
-}
-
-function closeDeleteModal() {
-    document.getElementById('delete-modal').style.display = 'none';
-}
-
-async function processDelete(id) {
-    const btn = document.getElementById('confirm-delete-btn');
-    btn.disabled = true;
-    btn.innerText = "Deleting...";
-
-    try {
-        const response = await fetch(`/api/delete-file/${id}`, { method: 'DELETE' });
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById(`file-${id}`).style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById(`file-${id}`).remove();
-                if (document.querySelectorAll('.file-card').length === 0) location.reload();
-            }, 300);
-            showToast("Artifact purged successfully", "success");
-        } else {
-            showToast("Protocol failure: " + data.error, "warning");
-        }
-    } catch (e) {
-        showToast("Network disruption detected", "warning");
-    } finally {
-        closeDeleteModal();
-        btn.disabled = false;
-        btn.innerText = "Confirm Delete";
-    }
-}
-
-async function handleDriveUpload(input) {
-    const file = input.files[0];
-    if (!file) return;
-
-    AppLoader.show(`SYNCING: ${file.name.toUpperCase()}`);
-
+async function uploadArtifact(input) {
+    if (!input.files[0]) return;
+    
     const formData = new FormData();
-    formData.append('file', file);
-
+    formData.append('file', input.files[0]);
+    
+    AppLoader.show("ENCRYPTING & UPLOADING...");
     try {
-        const response = await fetch('/upload', { method: 'POST', body: formData });
-        const data = await response.json();
-
+        const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
         if (data.success) {
-            showToast("Cloud sync complete!", "success");
-            setTimeout(() => location.reload(), 500);
+            showToast("Artifact Secured!", "success");
+            location.reload();
         } else {
-            showToast(data.error || "Upload failed", "warning");
-            AppLoader.hide();
+            showToast(data.error || "Upload failed", "error");
         }
-    } catch (e) {
-        showToast("Cloud link interrupted", "warning");
-        AppLoader.hide();
-    } finally {
-        input.value = "";
+    } catch(e) {
+        showToast("Signal Interrupted", "error");
     }
+    AppLoader.hide();
+}
+
+async function purgeArtifact(id) {
+    if (!confirm("Are you sure you want to purge this artifact from the vault?")) return;
+    
+    AppLoader.show("PURGING DATA...");
+    try {
+        const res = await fetch(`/api/delete-file/${id}`, {
+            method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast("Artifact Purged", "success");
+            location.reload();
+        } else {
+            showToast(data.error || "Purge failed", "error");
+        }
+    } catch(e) {
+        showToast("Signal Interrupted", "error");
+    }
+    AppLoader.hide();
 }
 </script>
-
-<style>
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.file-card:hover { border-color: var(--secondary) !important; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-</style>
 {% endblock %}

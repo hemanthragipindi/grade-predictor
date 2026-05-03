@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
 from flask_login import login_required, current_user
 from database import db
-from models import Subject, Component, Marks, CAMarks, SyllabusFile, AssessmentProgress
+from models import Subject, Component, Marks, CAMarks, SyllabusFile, AssessmentProgress, StudyLog
 from logic.grading import get_grade, is_practical, calc_ca_score
 import math
 import datetime
+import os
+import json
 
 academic_bp = Blueprint('academic', __name__)
 
@@ -37,7 +39,7 @@ def index():
 @login_required
 def dashboard():
     from intelligence import AcademicBrain
-    brain = AcademicBrain(db.session)
+    brain = AcademicBrain(db.session, current_user.id)
     subjects = Subject.query.filter_by(user_id=current_user.id).all()
     
     total_points = 0
@@ -54,51 +56,39 @@ def dashboard():
     cgpa = round(total_points/total_credits, 2) if total_credits > 0 else 0.0
     gpa_tier = brain.analyze_gpa_tier(cgpa)
     cog_load = brain.get_cognitive_load()
-    learning_insights = brain.get_learning_insights()
     identity = brain.get_user_identity()
     meta_insights = brain.get_meta_behavior_analysis()
 
-    assessments_raw = AssessmentProgress.query.all()
+    assessments_raw = AssessmentProgress.query.filter_by(subject_id=Subject.id).join(Subject).filter(Subject.user_id == current_user.id).all()
     assessments = []
     for a in assessments_raw:
         total_topics = len(a.topics) if a.topics else 0
         completed_topics = sum(1 for t in a.topics if t.get('completed')) if a.topics else 0
         progress = (completed_topics / total_topics * 100) if total_topics > 0 else 0
         sub = Subject.query.get(a.subject_id)
-        if sub and sub.user_id == current_user.id:
-            assessments.append({
-                "subject_code": sub.subject_code,
-                "progress": round(progress, 1),
-                "unit": a.unit_number
-            })
-
-    from models import StudyLog
-    logs = StudyLog.query.filter_by(user_id=current_user.id).all()
-    total_study_hours = sum(l.duration_hours for l in logs) if logs else 0.0
-    avg_study_session = (total_study_hours / len(logs)) if logs else 0.0
+        assessments.append({
+            "subject_code": sub.subject_code,
+            "progress": round(progress, 1),
+            "unit": a.unit_number
+        })
 
     return render_template(
         "dashboard.html",
         cgpa=cgpa,
-        total_credits=total_credits,
         subject_count=len(subjects),
         high_risk_count=high_count,
         gpa_tier=gpa_tier,
         cog_load=cog_load,
-        learning_insights=learning_insights,
         identity=identity,
         meta_insights=meta_insights,
-        assessments=assessments,
-        total_study_hours=round(total_study_hours, 1),
-        avg_study_session=round(avg_study_session, 1),
-        current_hour=datetime.datetime.now().hour
+        assessments=assessments
     )
 
 @academic_bp.route("/course-matrix")
 @login_required
 def active_matrix():
     from intelligence import AcademicBrain
-    brain = AcademicBrain(db.session)
+    brain = AcademicBrain(db.session, current_user.id)
     subjects = Subject.query.filter_by(user_id=current_user.id).all()
     results = []
     
@@ -115,6 +105,102 @@ def active_matrix():
         })
 
     return render_template("matrix.html", results=results)
+
+@academic_bp.route("/analytics")
+@login_required
+def analytics():
+    from intelligence import AcademicBrain
+    brain = AcademicBrain(db.session, current_user.id)
+    subjects = Subject.query.filter_by(user_id=current_user.id).all()
+    
+    total_points = 0
+    total_credits = 0
+    for sub in subjects:
+        _, _, gpa = get_subject_score_and_grade(sub.id)
+        total_points += gpa * (sub.credits or 0)
+        total_credits += (sub.credits or 0)
+    
+    cgpa = round(total_points/total_credits, 2) if total_credits > 0 else 0.0
+    
+    return render_template("analytics.html",
+        cgpa=cgpa,
+        best_action=brain.get_best_action(),
+        roi_analysis=brain.get_roi_analysis(),
+        drop_vs_improve=brain.get_drop_vs_improve(),
+        impact_metrics=brain.get_impact_metrics(),
+        timeline=brain.get_insight_timeline(),
+        radar_data=brain.get_subject_mastery_radar()
+    )
+
+@academic_bp.route("/history")
+@login_required
+def history():
+    subjects = Subject.query.filter_by(user_id=current_user.id).all()
+    history_data = []
+    total_points = 0
+    total_credits = 0
+    
+    for sub in subjects:
+        score, grade, gpa = get_subject_score_and_grade(sub.id)
+        history_data.append({
+            "subject_code": sub.subject_code,
+            "subject_name": sub.subject_name,
+            "credits": sub.credits,
+            "score": score,
+            "grade": grade,
+            "status": "COMPLETED" if score > 0 else "PENDING"
+        })
+        total_points += gpa * (sub.credits or 0)
+        total_credits += (sub.credits or 0)
+    
+    cgpa = round(total_points/total_credits, 2) if total_credits > 0 else 0.0
+    
+    return render_template("history.html", subjects=history_data, cgpa=cgpa, total_credits=total_credits)
+
+@academic_bp.route("/log_study", methods=["POST"])
+@login_required
+def log_study():
+    data = request.json
+    subject_code = data.get("subject_code")
+    duration = data.get("duration")
+    
+    sub = Subject.query.filter_by(user_id=current_user.id, subject_code=subject_code).first()
+    if not sub: return jsonify({"error": "Subject not found"}), 404
+    
+    new_log = StudyLog(user_id=current_user.id, subject_id=sub.id, duration_hours=float(duration))
+    db.session.add(new_log)
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "Neural focus logged.", "new_streak": 5})
+
+@academic_bp.route("/assistant")
+@login_required
+def assistant():
+    return render_template("assistant.html")
+
+@academic_bp.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    settings_path = os.path.join(os.getcwd(), 'backend', 'instance', 'settings.json')
+    
+    if request.method == "POST":
+        # Simplified settings persistence for demo
+        current_settings = {}
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f: current_settings = json.load(f)
+            
+        form_data = request.form.to_dict()
+        current_settings.update(form_data)
+        
+        with open(settings_path, 'w') as f: json.dump(current_settings, f)
+        flash("Architecture parameters updated.", "success")
+        return redirect(url_for('academic.settings'))
+
+    current_settings = {}
+    if os.path.exists(settings_path):
+        with open(settings_path, 'r') as f: current_settings = json.load(f)
+        
+    return render_template("settings.html", settings=current_settings)
 
 @academic_bp.route("/subject/<int:subject_id>", methods=["GET", "POST"])
 @login_required
@@ -133,11 +219,6 @@ def subject_page(subject_id):
                     m = Marks(subject_id=subject_id, component_id=comp_id)
                     db.session.add(m)
                 m.marks_obtained = val
-            elif key.startswith("weight_"):
-                comp_id = int(key.split("_")[1])
-                val = float(request.form[key]) if request.form[key] else 0
-                comp = Component.query.get(comp_id)
-                if comp: comp.weight = val
         
         ca_marks = request.form.getlist("ca_marks[]")
         ca_max = request.form.getlist("ca_max[]")
@@ -152,6 +233,7 @@ def subject_page(subject_id):
                 db.session.add(CAMarks(subject_id=subject_id, marks=mk, max_marks=mx, weight=wt))
         
         db.session.commit()
+        flash("Matrix parameters synchronized.", "success")
         return redirect(url_for("academic.subject_page", subject_id=subject_id))
 
     components = Component.query.filter_by(subject_id=subject_id).all()
@@ -172,6 +254,38 @@ def subject_page(subject_id):
         grade=grade,
         is_prac=is_practical(subject),
         edit_mode=request.args.get("edit") == "1"
+    )
+
+@academic_bp.route("/semester/<int:semester_id>")
+@login_required
+def semester_page(semester_id):
+    from intelligence import AcademicBrain
+    brain = AcademicBrain(db.session, current_user.id)
+    subjects = Subject.query.filter_by(user_id=current_user.id, semester=semester_id).all()
+    
+    results = []
+    total_points = 0
+    total_credits = 0
+    for sub in subjects:
+        score, grade, gpa = get_subject_score_and_grade(sub.id)
+        results.append({
+            "subject": sub,
+            "score": score,
+            "grade": grade,
+            "gpa": gpa,
+            "priority": "High" if score < 60 else "Medium",
+            "rec": "Focus on mid-term recovery." if score < 60 else "Maintain structural integrity."
+        })
+        total_points += gpa * (sub.credits or 0)
+        total_credits += (sub.credits or 0)
+    
+    tgpa = round(total_points/total_credits, 2) if total_credits > 0 else 0.0
+    
+    return render_template("semester.html", 
+        semester_id=semester_id, 
+        results=results, 
+        tgpa=tgpa,
+        analytics_data=[{"name": r['subject'].subject_code, "risk": r['score'], "sensitivity": r['gpa']} for r in results]
     )
 
 @academic_bp.route("/cloud-drive")

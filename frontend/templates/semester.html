@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block title %}Semester {{ semester_id }} Analysis | Nexora{% endblock %}
+
+{% block content %}
+<div class="semester-container animate-in">
+    <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">SEMESTER<span style="color: var(--primary);">{{ semester_id }}</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Localized performance audit</p>
+        </div>
+        <div class="tgpa-badge" style="background: var(--bg-light); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--panel-border); text-align: right;">
+            <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Semester TGPA</div>
+            <div style="font-size: 1.5rem; font-weight: 850; color: var(--primary);">{{ "%.2f"|format(tgpa) }}</div>
+        </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px;">
+        <!-- Subject List -->
+        <div class="panel" style="padding: 0; overflow: hidden;">
+            <div style="padding: 20px 25px; border-bottom: 1px solid var(--panel-border); background: var(--bg-light);">
+                <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Module Performance Matrix</h3>
+            </div>
+            <div style="padding: 10px;">
+                {% for r in results %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 15px; border-bottom: 1px solid var(--bg-light); last-child: border-bottom: none;">
+                    <div>
+                        <div style="font-size: 0.95rem; font-weight: 850; color: var(--text-main);">{{ r.subject.subject_code }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">{{ r.subject.subject_name }}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 30px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800;">SCORE</div>
+                            <div style="font-size: 1.1rem; font-weight: 850; color: var(--primary);">{{ r.score }}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800;">GRADE</div>
+                            <div style="font-size: 1.1rem; font-weight: 850; color: var(--text-main);">{{ r.grade }}</div>
+                        </div>
+                        <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 850; {% if r.priority == 'High' %}background: #fef2f2; color: #ef4444;{% else %}background: #f0fdf4; color: #22c55e;{% endif %}">
+                            {{ r.priority }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Risk Chart -->
+        <div class="panel" style="padding: 25px;">
+            <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Risk vs Sensitivity Matrix</h3>
+            <div style="height: 300px;">
+                <canvas id="riskChart"></canvas>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; border-radius: 12px; background: var(--bg-light); border: 1px solid var(--panel-border);">
+                <h4 style="font-size: 0.75rem; font-weight: 850; color: var(--text-main); margin-bottom: 5px;">STRATEGIC INSIGHT</h4>
+                <p style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; line-height: 1.4;">Modules in the top-right quadrant require immediate tactical intervention to protect TGPA stability.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('riskChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Subject Risk Profile',
+                data: {{ analytics_data | tojson }}.map(d => ({x: d.sensitivity, y: d.risk})),
+                backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                borderColor: '#3b82f6',
+                pointRadius: 8,
+                pointHoverRadius: 10
+            }]
+        },
+        options: {
+            scales: {
+                x: { title: { display: true, text: 'Sensitivity (Credits Impact)', font: {weight: 'bold'} } },
+                y: { title: { display: true, text: 'Risk Score (Failure Probability)', font: {weight: 'bold'} }, max: 100 }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

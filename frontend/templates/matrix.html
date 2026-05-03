@@ -3,106 +3,61 @@
 {% block title %}Course Matrix | Nexora{% endblock %}
 
 {% block content %}
-<div class="container animate-in">
-    <div class="section-header" style="margin-bottom: 40px;">
-        <h1 style="font-size: 2.2rem; margin: 0;">Strategic Course Matrix</h1>
-        <p class="text-muted" style="margin-top: 5px;">Analytical overview of all active academic modules.</p>
-    </div>
+<div class="matrix-container animate-in">
+    <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">COURSE<span style="color: var(--primary);">MATRIX</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Active academic distribution audit</p>
+        </div>
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+            <span style="width: 10px; height: 10px; background: #22c55e; border-radius: 50%;"></span>
+            <span style="font-size: 0.75rem; font-weight: 850; color: #166534;">Neural Sync Active</span>
+        </div>
+    </header>
 
-    <!-- Desktop Table View -->
-    <div class="panel desktop-only" style="padding: 0; overflow: hidden;">
-        <table class="matrix-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+    <div class="panel" style="padding: 0; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
             <thead>
-                <tr style="background: rgba(255,255,255,0.02); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 800;">
-                    <th style="padding: 20px;">Module Code</th>
-                    <th style="padding: 20px;">Module Name</th>
-                    <th style="padding: 20px;">Projected Grade</th>
-                    <th style="padding: 20px;">Risk Level</th>
-                    <th style="padding: 20px; text-align: right;">Action</th>
+                <tr style="background: var(--bg-light); border-bottom: 1px solid var(--panel-border);">
+                    <th style="text-align: left; padding: 20px 25px; font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Academic Module</th>
+                    <th style="text-align: center; padding: 20px 25px; font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Credits</th>
+                    <th style="text-align: center; padding: 20px 25px; font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Current Score</th>
+                    <th style="text-align: center; padding: 20px 25px; font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Sensitivity</th>
+                    <th style="text-align: center; padding: 20px 25px; font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Risk Profile</th>
+                    <th style="text-align: right; padding: 20px 25px; font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Directive</th>
                 </tr>
             </thead>
             <tbody>
-                {% for res in results %}
-                <tr class="matrix-row" style="border-bottom: 1px solid var(--panel-border); transition: 0.3s;">
-                    <td style="padding: 20px; font-weight: 850; color: var(--primary);">{{ res.subject.subject_code }}</td>
-                    <td style="padding: 20px; font-weight: 600;">{{ res.subject.subject_name }}</td>
-                    <td style="padding: 20px;">
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--grade-o); font-weight: 900; font-size: 1.1rem; padding: 6px 12px; border-radius: 8px;">
-                            {{ res.grade }}
+                {% for r in results %}
+                <tr style="border-bottom: 1px solid var(--bg-light); transition: 0.3s; cursor: pointer;" onclick="window.location='{{ url_for('academic.subject_page', subject_id=r.subject.id) }}'">
+                    <td style="padding: 20px 25px;">
+                        <div style="font-size: 0.95rem; font-weight: 850; color: var(--primary);">{{ r.subject.subject_code }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">{{ r.subject.subject_name }}</div>
+                    </td>
+                    <td style="padding: 20px 25px; text-align: center; font-weight: 600; color: var(--text-main);">{{ r.subject.credits }}</td>
+                    <td style="padding: 20px 25px; text-align: center;">
+                        <div style="font-size: 1.1rem; font-weight: 850; color: var(--text-main);">{{ r.score }}<span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">/100</span></div>
+                        <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800;">GRADE: {{ r.grade }}</div>
+                    </td>
+                    <td style="padding: 20px 25px; text-align: center;">
+                        <div style="font-size: 0.9rem; font-weight: 850; color: var(--primary);">{{ "%.3f"|format(r.sensitivity) }}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-muted); font-weight: 800;">CGPA IMPACT</div>
+                    </td>
+                    <td style="padding: 20px 25px; text-align: center;">
+                        <div style="width: 100px; height: 6px; background: var(--bg-light); border-radius: 3px; margin: 0 auto 8px; overflow: hidden;">
+                            <div style="width: {{ r.risk }}%; height: 100%; background: {% if r.risk > 60 %}#ef4444{% elif r.risk > 30 %}#f59e0b{% else %}#10b981{% endif %};"></div>
+                        </div>
+                        <div style="font-size: 0.65rem; font-weight: 850; color: var(--text-muted);">{{ r.risk }}% FAILURE PROB.</div>
+                    </td>
+                    <td style="padding: 20px 25px; text-align: right;">
+                        <span style="display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 850; {% if r.priority == 'High' %}background: #fef2f2; color: #ef4444;{% elif r.priority == 'Medium' %}background: #fffbeb; color: #d97706;{% else %}background: #f0fdf4; color: #22c55e;{% endif %}">
+                            {{ r.priority }} PRIORITY
                         </span>
-                        <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">({{ res.score }}%)</span>
-                    </td>
-                    <td style="padding: 20px;">
-                        {% if res.priority == 'High' %}
-                            <span style="color: var(--grade-f); font-weight: 800; display: flex; align-items: center; gap: 6px;">
-                                <div style="width: 8px; height: 8px; background: var(--grade-f); border-radius: 50%; box-shadow: 0 0 8px var(--grade-f);"></div>
-                                CRITICAL RISK
-                            </span>
-                        {% else %}
-                            <span style="color: var(--grade-o); opacity: 0.8; display: flex; align-items: center; gap: 6px;">
-                                <div style="width: 8px; height: 8px; background: var(--grade-o); border-radius: 50%;"></div>
-                                STABLE
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td style="padding: 20px; text-align: right;">
-                        <a href="{{ url_for('academic.subject_page', subject_id=res.subject.id) }}" class="btn-primary" style="padding: 8px 16px; font-size: 0.8rem;">Adjust Strategy</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-    <!-- Mobile Card View -->
-    <div class="mobile-only responsive-grid" style="grid-template-columns: 1fr;">
-        {% for res in results %}
-        <div class="panel matrix-card-mobile" style="padding: 20px; position: relative; overflow: hidden;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                <div>
-                    <span style="font-size: 0.7rem; font-weight: 850; color: var(--primary); letter-spacing: 1px;">{{ res.subject.subject_code }}</span>
-                    <h3 style="font-size: 1.1rem; margin: 4px 0 0 0;">{{ res.subject.subject_name }}</h3>
-                </div>
-                <div style="text-align: right;">
-                    <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--grade-o); font-weight: 900; font-size: 1.2rem; padding: 6px 10px; border-radius: 8px; display: block;">
-                        {{ res.grade }}
-                    </span>
-                    <span style="font-size: 0.7rem; color: var(--text-muted);">{{ res.score }}%</span>
-                </div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--panel-border);">
-                <div>
-                    {% if res.priority == 'High' %}
-                        <span style="color: var(--grade-f); font-size: 0.75rem; font-weight: 800;">CRITICAL RISK</span>
-                    {% else %}
-                        <span style="color: var(--grade-o); font-size: 0.75rem; font-weight: 800; opacity: 0.8;">STABLE</span>
-                    {% endif %}
-                </div>
-                <a href="{{ url_for('academic.subject_page', subject_id=res.subject.id) }}" class="btn-primary" style="padding: 8px 14px; font-size: 0.75rem;">Modify Matrix</a>
-            </div>
-            
-            {% if res.priority == 'High' %}
-            <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--grade-f);"></div>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
 </div>
-
-<style>
-.matrix-row:hover {
-    background: rgba(255,255,255,0.03) !important;
-}
-
-@media (min-width: 769px) {
-    .mobile-only { display: none !important; }
-}
-
-@media (max-width: 768px) {
-    .desktop-only { display: none !important; }
-    .mobile-only { display: grid !important; }
-}
-</style>
 {% endblock %}
-
