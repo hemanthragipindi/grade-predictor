@@ -1,12 +1,9 @@
-name: Build Flutter APK
+name: Build APK
 
 on:
   push:
     branches:
       - main
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -20,16 +17,11 @@ jobs:
         with:
           flutter-version: '3.22.0'
 
-      - name: Flutter Doctor
-        run: flutter doctor
-
       - name: Install dependencies
         run: flutter pub get
-        working-directory: .
 
       - name: Build APK
         run: flutter build apk --release
-        working-directory: .
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
