@@ -28,6 +28,12 @@ def get_subject_score_and_grade(subject_id):
     return score, grade, gpa
 
 @academic_bp.route("/")
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('academic.dashboard'))
+    return render_template("landing.html")
+
+@academic_bp.route("/dashboard")
 @login_required
 def dashboard():
     from intelligence import AcademicBrain
