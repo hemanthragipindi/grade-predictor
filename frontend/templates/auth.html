@@ -6,16 +6,16 @@
 <div class="auth-wrapper animate-in" style="width: 100%; max-width: 440px; padding: 20px;">
     <!-- Branding Header -->
     <header class="auth-branding" style="text-align: center; margin-bottom: 40px;">
-        <div class="brand-logo" style="font-size: 2.8rem; font-weight: 850; letter-spacing: -2px; color: #fff; margin-bottom: 5px;">
+        <div class="brand-logo" style="font-size: 2.8rem; font-weight: 850; letter-spacing: -2px; color: var(--text-main); margin-bottom: 5px;">
             NEXORA<span style="color: var(--primary);">AUTH</span>
         </div>
         <p class="text-muted" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">Secure Gateway Protocol</p>
     </header>
 
-    <div class="panel auth-panel" style="padding: 0; overflow: hidden; border: 1px solid var(--panel-border);">
+    <div class="panel auth-panel" style="padding: 0; overflow: hidden; border: 1px solid var(--panel-border); background: var(--panel-white);">
         <!-- Tab Selector -->
-        <nav class="auth-tabs" style="display: flex; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--panel-border);">
-            <button onclick="switchTab('login')" id="login-tab" class="auth-tab active" style="flex: 1; padding: 20px; background: none; border: none; color: #fff; font-weight: 850; cursor: pointer; transition: 0.3s; font-size: 0.85rem; letter-spacing: 1px;">LOGIN</button>
+        <nav class="auth-tabs" style="display: flex; background: var(--bg-light); border-bottom: 1px solid var(--panel-border);">
+            <button onclick="switchTab('login')" id="login-tab" class="auth-tab active" style="flex: 1; padding: 20px; background: none; border: none; color: var(--text-main); font-weight: 850; cursor: pointer; transition: 0.3s; font-size: 0.85rem; letter-spacing: 1px;">LOGIN</button>
             <button onclick="switchTab('register')" id="register-tab" class="auth-tab" style="flex: 1; padding: 20px; background: none; border: none; color: var(--text-muted); font-weight: 850; cursor: pointer; transition: 0.3s; font-size: 0.85rem; letter-spacing: 1px;">REGISTER</button>
         </nav>
 
@@ -26,22 +26,22 @@
                     <div class="form-group" style="margin-bottom: 25px;">
                         <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Access Mobile</label>
                         <input type="tel" name="mobile" id="login-mobile" placeholder="+91 00000 00000" required
-                               style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s; font-weight: 600;">
+                               style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s; font-weight: 600;">
                     </div>
                     <button type="button" onclick="verifyMobile()" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Initiate Scan</button>
                 </div>
 
                 <div id="login-step-2" style="display: none;" class="animate-in">
-                    <div class="verified-badge" style="margin-bottom: 20px; padding: 12px 15px; background: rgba(59, 130, 246, 0.1); border-radius: 10px; border: 1px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                    <div class="verified-badge" style="margin-bottom: 20px; padding: 12px 15px; background: rgba(59, 130, 246, 0.05); border-radius: 10px; border: 1px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
                         <span id="verified-mobile" style="font-weight: 700; color: var(--primary); font-size: 0.9rem;"></span>
                         <button type="button" onclick="resetLogin()" style="background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; text-decoration: underline; font-weight: 700;">Change</button>
                     </div>
                     <div class="form-group" style="margin-bottom: 25px;">
                         <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Security Key</label>
                         <input type="password" name="password" id="login-password" placeholder="••••••••" required
-                               style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s;">
+                               style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s;">
                     </div>
-                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; background: var(--secondary); box-shadow: 0 10px 20px -5px rgba(16,185,129,0.3); font-size: 0.95rem;">Enter Nexus</button>
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; background: var(--secondary); box-shadow: 0 10px 20px -5px rgba(16,185,129,0.2); font-size: 0.95rem;">Enter Nexus</button>
                 </div>
             </form>
 
@@ -50,28 +50,28 @@
                 <div class="form-group" style="margin-bottom: 18px;">
                     <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Full Identity</label>
                     <input type="text" name="name" placeholder="User Name" required
-                           style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 12px 15px; border-radius: 10px; font-weight: 600;">
+                           style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px 15px; border-radius: 10px; font-weight: 600;">
                 </div>
                 <div class="form-group" style="margin-bottom: 18px;">
                     <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Communication Node (Email)</label>
                     <input type="email" name="email" placeholder="email@nexora.com" required
-                           style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 12px 15px; border-radius: 10px; font-weight: 600;">
+                           style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px 15px; border-radius: 10px; font-weight: 600;">
                 </div>
                 <div class="form-group" style="margin-bottom: 18px;">
                     <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Mobile Contact</label>
                     <input type="tel" name="mobile" placeholder="+91 00000 00000" required
-                           style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 12px 15px; border-radius: 10px; font-weight: 600;">
+                           style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px 15px; border-radius: 10px; font-weight: 600;">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                     <div class="form-group">
                         <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Key</label>
                         <input type="password" name="password" id="reg-pass" placeholder="••••" required
-                               style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 12px; border-radius: 10px;">
+                               style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px; border-radius: 10px;">
                     </div>
                     <div class="form-group">
                         <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Verify</label>
                         <input type="password" name="confirm_password" id="reg-confirm" placeholder="••••" required
-                               style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: white; padding: 12px; border-radius: 10px;">
+                               style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px; border-radius: 10px;">
                     </div>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Generate Identity</button>
@@ -114,7 +114,8 @@ function switchTab(tab) {
 }
 
 async function verifyMobile() {
-    const mobile = document.getElementById('login-mobile').value;
+    const rawMobile = document.getElementById('login-mobile').value;
+    const mobile = rawMobile.replace(/\D/g, ''); // Normalize for API
     if (!mobile) return showToast("Identification required", "warning");
 
     AppLoader.show("SCANNING NODE...");
@@ -130,7 +131,7 @@ async function verifyMobile() {
         if (data.exists) {
             document.getElementById('login-step-1').style.display = 'none';
             document.getElementById('login-step-2').style.display = 'block';
-            document.getElementById('verified-mobile').innerText = mobile;
+            document.getElementById('verified-mobile').innerText = rawMobile;
             AppLoader.hide();
         } else {
             showToast("Node not found", "warning");
@@ -141,6 +142,20 @@ async function verifyMobile() {
         AppLoader.hide();
     }
 }
+
+// Mobile Formatter Logic
+function formatMobileInput(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 5) {
+        value = value.slice(0, 5) + ' ' + value.slice(5, 10);
+    }
+    e.target.value = value.trim();
+}
+
+document.getElementById('login-mobile').addEventListener('input', formatMobileInput);
+document.querySelectorAll('input[name="mobile"]').forEach(input => {
+    input.addEventListener('input', formatMobileInput);
+});
 
 function resetLogin() {
     document.getElementById('login-step-1').style.display = 'block';

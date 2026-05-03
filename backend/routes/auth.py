@@ -10,7 +10,8 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        mobile = request.form.get("mobile")
+        raw_mobile = request.form.get("mobile")
+        mobile = re.sub(r'\D', '', raw_mobile) if raw_mobile else None
         password = request.form.get("password")
         
         user = User.query.filter_by(mobile=mobile).first()
@@ -18,13 +19,14 @@ def login():
             login_user(user)
             return redirect(url_for("academic.dashboard"))
         
-        flash("Invalid password", "warning")
+        flash("Invalid identification or security key", "warning")
     return render_template("auth.html")
 
 @auth_bp.route("/api/check-mobile", methods=["POST"])
 def check_mobile():
     data = request.json
-    mobile = data.get("mobile")
+    raw_mobile = data.get("mobile")
+    mobile = re.sub(r'\D', '', raw_mobile) if raw_mobile else None
     user = User.query.filter_by(mobile=mobile).first()
     if user:
         return jsonify({"exists": True})
@@ -67,16 +69,20 @@ def register():
 
     # 5. Success Flow
     hashed_pass = generate_password_hash(password)
-    new_user = User(name=name, email=email, mobile=mobile, password=hashed_pass)
+    new_user = User(name=name, email=email, mobile=clean_mobile, password=hashed_pass)
     
     # Auto-promote first user to Admin
     if User.query.count() == 0:
         new_user.is_admin = True
 
-    db.session.add(new_user)
-    db.session.commit()
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        flash("Registration Successful. Please Login.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Database Error: Identity could not be saved.", "warning")
     
-    flash("Registration Successful. Please Login.", "success")
     return redirect(url_for("auth.login"))
 
 @auth_bp.route("/logout")

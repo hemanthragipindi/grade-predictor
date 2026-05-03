@@ -8,28 +8,28 @@
     <header class="dashboard-header" style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
         <div class="header-main">
             <div class="tier-indicator" style="margin-bottom: 8px;">
-                <span class="badge badge-glow" style="background: {{ gpa_tier.color }}20; color: {{ gpa_tier.color }};">
-                    STATUS: {{ gpa_tier.tier }}
+                <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">
+                    IDENTIFIED: {{ gpa_tier.tier }}
                 </span>
             </div>
-            <h1 class="page-title" style="margin: 0; font-size: 2.2rem;">My Academic Journey</h1>
-            <p class="text-muted" style="margin-top: 5px;">{{ gpa_tier.message }}</p>
+            <h1 class="page-title" style="margin: 0; font-size: 2.2rem; letter-spacing: -1.5px;">Nexus Overview</h1>
+            <p class="text-muted" style="margin-top: 5px; font-weight: 500;">{{ gpa_tier.message }}</p>
         </div>
         <div id="ai-slogan-container" style="text-align: right; max-width: 300px;">
             <p id="ai-slogan" style="font-size: 0.9rem; font-weight: 650; color: var(--primary); margin: 0; font-style: italic;">"Sync Your Strategy. Own Your Success."</p>
-            <button onclick="refreshSlogan()" style="background: none; border: none; font-size: 0.65rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; margin-top: 5px;">New Motivation</button>
+            <button onclick="refreshSlogan()" style="background: none; border: none; font-size: 0.65rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; margin-top: 5px;">Refresh Slogan</button>
         </div>
     </header>
 
     <!-- Strategy Card -->
-    <section class="panel strategy-panel" style="background: linear-gradient(135deg, {{ gpa_tier.color }}15, transparent); border-left: 4px solid {{ gpa_tier.color }}; margin-bottom: 30px;">
+    <section class="panel strategy-panel" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), transparent); border-left: 4px solid var(--primary); margin-bottom: 30px;">
         <div class="panel-strategy-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; align-items: center;">
             <div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 5px;">Recommended Strategy</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px;">Current Strategy</div>
                 <h3 style="font-size: 1.4rem; margin: 0;">{{ gpa_tier.strategy }}</h3>
             </div>
             <div>
-                <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); margin: 0;"><strong style="color: var(--text-main);">Study Focus:</strong> {{ gpa_tier.focus }}</p>
+                <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); margin: 0;"><strong style="color: var(--text-main);">Intelligence Directive:</strong> {{ gpa_tier.focus }}</p>
             </div>
         </div>
     </section>
@@ -37,31 +37,31 @@
     <!-- Metrics Grid -->
     <section class="responsive-grid metrics-row" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 40px;">
         <div class="panel metric-card" style="text-align: center;">
-            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Overall GPA</div>
-            <div class="text-gradient" style="font-size: 4rem; font-weight: 900; line-height: 1;">{{ cgpa }}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; font-weight: 600;">Current Standing</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Network CGPA</div>
+            <div style="font-size: 4rem; font-weight: 900; line-height: 1; color: var(--text-main); letter-spacing: -2px;">{{ cgpa }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; font-weight: 600;">/ 10.0 Baseline</div>
         </div>
 
         <div class="panel metric-card">
-            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Course Progress</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px;">Matrix Integrity</div>
             <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                 <div style="font-size: 2rem; font-weight: 850;">{{ subject_count }}</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Enrolled Subjects</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Active Modules</div>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div style="font-size: 2rem; font-weight: 850; color: {% if high_risk_count > 0 %}var(--grade-f){% else %}var(--grade-o){% endif %};">{{ high_risk_count }}</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Subjects Needing Attention</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Identified Risks</div>
             </div>
         </div>
 
         <div class="panel metric-card">
-            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Academic Load</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px;">Cognitive Load</div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="font-size: 1.1rem; font-weight: 800;">{{ cog_load.status }}</span>
-                <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700;">{{ identity }}</span>
+                <span style="font-size: 0.8rem; color: var(--primary); font-weight: 800;">{{ identity }}</span>
             </div>
-            <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
-                <div style="width: {% if cog_load.status == 'Optimal' %}40{% elif cog_load.status == 'Moderate' %}70{% else %}95{% endif %}%; height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary);"></div>
+            <div style="height: 8px; background: var(--bg-light); border-radius: 4px; overflow: hidden; border: 1px solid var(--panel-border);">
+                <div style="width: {% if cog_load.status == 'Optimal' %}40{% elif cog_load.status == 'Moderate' %}70{% else %}95{% endif %}%; height: 100%; background: var(--primary); border-radius: 4px;"></div>
             </div>
         </div>
     </section>
@@ -72,41 +72,27 @@
             <!-- Matrix Portal -->
             <div style="margin-bottom: 25px;">
                 <a href="{{ url_for('academic.active_matrix') }}" style="text-decoration: none; display: block;">
-                    <div class="panel portal-card" style="padding: 40px; background: var(--primary); color: white; border: none; overflow: hidden; position: relative;">
+                    <div class="panel portal-card" style="padding: 40px; background: #1e293b; color: white; border: none; overflow: hidden; position: relative; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3);">
                         <div style="position: relative; z-index: 1;">
-                            <h2 style="font-size: 1.8rem; margin: 0;">Explore Course Matrix</h2>
-                            <p style="opacity: 0.8; margin-top: 5px; font-weight: 500;">Track your marks, predict grades, and optimize your study sessions.</p>
+                            <h2 style="font-size: 1.8rem; margin: 0; color: white;">Enter Active Course Matrix</h2>
+                            <p style="opacity: 0.7; margin-top: 5px; font-weight: 500;">Manage detailed subjects, track sensitivity, and optimize performance vectors.</p>
                         </div>
-                        <div style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <svg width="30" height="30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <div style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </div>
                     </div>
                 </a>
             </div>
 
             <div class="panel">
-                <h3 style="margin-bottom: 20px;">Learning Insights</h3>
+                <h3 style="margin-bottom: 20px;">System Intel Feed</h3>
                 <div style="display: flex; flex-direction: column; gap: 20px;">
-                    {% for insight in learning_insights %}
+                    {% for insight in meta_insights %}
                     <div style="display: flex; gap: 15px; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px;">
-                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 6px; flex-shrink: 0; box-shadow: 0 0 8px var(--primary);"></div>
-                        <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">{{ insight }}</p>
+                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; font-weight: 500;">{{ insight }}</p>
                     </div>
                     {% endfor %}
-                </div>
-            </div>
-
-            <div class="panel" style="margin-top: 25px;">
-                <h3 style="margin-bottom: 20px;">Study Effort</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="padding: 20px; background: rgba(59, 130, 246, 0.05); border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.1); text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Total Focus</div>
-                        <div style="font-size: 1.8rem; font-weight: 850; color: var(--primary);">{{ total_study_hours }}h</div>
-                    </div>
-                    <div style="padding: 20px; background: rgba(16, 185, 129, 0.05); border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.1); text-align: center;">
-                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Avg Session</div>
-                        <div style="font-size: 1.8rem; font-weight: 850; color: var(--secondary);">{{ avg_study_session }}h</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -116,23 +102,24 @@
             {% include 'components/cloud_upload.html' %}
 
             <div class="panel" style="margin-top: 25px;">
-                <h3 style="margin-bottom: 20px;">Subject Milestones</h3>
+                <h3 style="margin-bottom: 20px;">Assessment Integrity Matrix</h3>
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     {% if assessments %}
                         {% for a in assessments[:4] %}
-                        <div style="padding: 16px; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); border: 1px solid var(--panel-border);">
+                        <div style="padding: 16px; background: var(--bg-light); border-radius: var(--radius-md); border: 1px solid var(--panel-border);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <span style="font-size: 0.8rem; font-weight: 800;">{{ a.subject_code }}</span>
-                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">{{ a.progress }}% Complete</span>
+                                <span style="font-size: 0.8rem; font-weight: 850;">{{ a.subject_code }}</span>
+                                <span style="font-size: 0.75rem; font-weight: 800; color: var(--primary);">{{ a.progress }}%</span>
                             </div>
-                            <div style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 2.5px; overflow: hidden;">
+                            <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
                                 <div style="width: {{ a.progress }}%; height: 100%; background: var(--primary);"></div>
                             </div>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">No subject data yet.</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px; font-weight: 600;">No active assessments detected.</p>
                     {% endif %}
+                    <a href="#" style="text-align: center; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-decoration: none; margin-top: 5px;">Manage All Assessments →</a>
                 </div>
             </div>
         </div>
