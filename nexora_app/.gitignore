@@ -1,0 +1,12 @@
+.gradle/
+build/
+local.properties
+*.log
+*.lock
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+android/app/debug/
+android/app/profile/
+android/app/release/
