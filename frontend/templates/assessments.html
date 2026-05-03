@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block title %}Assessments - Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <header class="content-header" style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">UPCOMING<span style="color: var(--primary);">ASSESSMENTS</span></h1>
+        <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Track your evaluation milestones and preparation progress</p>
+    </header>
+
+    <div class="responsive-grid" style="grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+        <div class="panel">
+            <h3 style="margin-bottom: 25px;">Upcoming Evaluations</h3>
+            {% if upcoming %}
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    {% for exam in upcoming %}
+                    <div style="padding: 20px; background: var(--bg-light); border-radius: 15px; border: 1px solid var(--panel-border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 0.7rem; font-weight: 850; color: var(--primary); letter-spacing: 1px;">{{ exam.subject }}</div>
+                            <div style="font-size: 1.1rem; font-weight: 800;">{{ exam.type }}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: 850;">{{ exam.date }}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">Deployment Date</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; padding: 40px; color: var(--text-muted); font-weight: 600;">No upcoming evaluations found.</p>
+            {% endif %}
+        </div>
+
+        <div class="panel">
+            <h3 style="margin-bottom: 25px;">Preparation Level</h3>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                {% for sub in subjects %}
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 0.85rem; font-weight: 800;">{{ sub.subject_code }}</span>
+                        <span style="font-size: 0.75rem; font-weight: 850; color: var(--primary);">PROGRESS: 85%</span>
+                    </div>
+                    <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                        <div style="width: 85%; height: 100%; background: var(--primary);"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-bottom: 25px;">Incomplete Assessments</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid var(--bg-light);">
+                    <th style="padding: 15px; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Identifier</th>
+                    <th style="padding: 15px; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Component</th>
+                    <th style="padding: 15px; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Status</th>
+                    <th style="padding: 15px; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in subjects %}
+                <tr style="border-bottom: 1px solid var(--bg-light);">
+                    <td style="padding: 15px; font-weight: 800; font-size: 0.9rem;">{{ sub.subject_code }}</td>
+                    <td style="padding: 15px; font-weight: 600; color: var(--text-muted);">Continuous Assessment</td>
+                    <td style="padding: 15px;"><span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">INCOMPLETE</span></td>
+                    <td style="padding: 15px;"><a href="{{ url_for('academic.subject_page', subject_id=sub.id) }}" style="color: var(--primary); font-weight: 850; text-decoration: none; font-size: 0.75rem;">RESUME →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

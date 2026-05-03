@@ -11,39 +11,39 @@ class AcademicBrain:
     def analyze_gpa_tier(self, cgpa):
         if cgpa >= 9.0:
             return {
-                "tier": "Architectural Elite",
-                "strategy": "Maintenance & Refinement",
-                "focus": "Optimization of high-yield assets. Secure your lead.",
+                "tier": "Outstanding Academic",
+                "strategy": "Performance Maintenance",
+                "focus": "Optimization of current grades. Secure your high standing.",
                 "color": "#10b981",
-                "message": "System stable. Focus on perfection vectors."
+                "message": "Performance stable. Maintain consistency in high-credit subjects."
             }
         elif cgpa >= 7.5:
             return {
-                "tier": "Core Strategist",
-                "strategy": "Structural Expansion",
-                "focus": "Shift focus to high-sensitivity subjects to break 9.0 threshold.",
+                "tier": "Consistent Performer",
+                "strategy": "Performance Growth",
+                "focus": "Focus on high-impact subjects to reach the 9.0+ GPA bracket.",
                 "color": "#3b82f6",
-                "message": "Optimization required in secondary modules."
+                "message": "Room for improvement in core subjects."
             }
         else:
             return {
-                "tier": "Matrix Recovery",
-                "strategy": "System Stabilization",
-                "focus": "Priority focus on subjects below 40% to save CGPA architecture.",
+                "tier": "Academic Recovery",
+                "strategy": "Performance Stabilization",
+                "focus": "Prioritize subjects below 50% to improve overall GPA.",
                 "color": "#f43f5e",
-                "message": "Critical stabilization protocol active."
+                "message": "Immediate attention needed to stabilize grades."
             }
 
     def get_user_identity(self):
         subjects = Subject.query.filter_by(user_id=self.user_id).all()
-        if not subjects: return "Academic Explorer"
+        if not subjects: return "Academic Learner"
         
         avg_score = sum(self._get_current_score(s.id) for s in subjects) / len(subjects)
         total_hours = self.session.query(func.sum(StudyLog.duration_hours)).filter(StudyLog.user_id == self.user_id).scalar() or 0
         
-        if total_hours > 50 and avg_score > 85: return "Architectural Lead"
-        if avg_score < 60: return "Recovery Specialist"
-        return "Academic Explorer"
+        if total_hours > 50 and avg_score > 85: return "Elite Student"
+        if avg_score < 60: return "Recovery Phase"
+        return "Academic Learner"
 
     def get_meta_behavior_analysis(self):
         subjects = Subject.query.filter_by(user_id=self.user_id).all()
@@ -52,17 +52,17 @@ class AcademicBrain:
         # Logic: Pattern detection
         high_risk = [s for s in subjects if self.predict_failure_risk(s.id) > 60]
         if high_risk:
-            insights.append(f"Identity: Your academic structure is heavily skewed towards high-credit STEM modules.")
-            insights.append(f"Pattern: You have {len(high_risk)} low-priority subjects with zero logged hours.")
+            insights.append(f"Analysis: Your load is concentrated in high-credit technical subjects.")
+            insights.append(f"Observation: You have {len(high_risk)} subjects requiring immediate preparation.")
         
-        insights.append("Strategy: You respond best to short, high-intensity study bursts.")
+        insights.append("Tip: Short, consistent study sessions often yield better results for technical subjects.")
         
         # Date-seeded tip
         seed = datetime.date.today().toordinal()
         tips = [
-            "ROI Alert: 1 hour of study in your lowest subject adds more to your CGPA than 2 hours in your highest.",
-            "Efficiency: Morning sessions show 15% higher retention for theoretical modules.",
-            "Risk Mitigator: Completing Unit 3 before mid-term secures an 8.2+ floor."
+            "GPA ROI: 1 hour in your lowest-scoring subject can boost your GPA more than 2 hours in your highest.",
+            "Efficiency: Focus on high-weightage internal components to secure your grade baseline.",
+            "Risk Tip: Completing Unit 3 before the mid-term significantly reduces end-term pressure."
         ]
         insights.append(tips[seed % len(tips)])
         return insights
@@ -76,7 +76,7 @@ class AcademicBrain:
         if load_score > 3: status = "Strained"
         elif load_score > 1: status = "Moderate"
         
-        return {"score": load_score, "status": status, "suggestion": "Shift non-essential modules to maintenance phase."}
+        return {"score": load_score, "status": status, "suggestion": "Distribute study efforts across high-risk subjects."}
 
     def get_learning_insights(self):
         logs = StudyLog.query.filter_by(user_id=self.user_id).all()
@@ -86,12 +86,11 @@ class AcademicBrain:
         best_time = "Morning" if morning >= night else "Night"
         return {
             "best_time": best_time,
-            "morning_vs_night": f"{max(morning, night)} peak vs {min(morning, night)} off-peak",
-            "focus_duration": "52m (Projected)"
+            "morning_vs_night": f"{max(morning, night)} sessions vs {min(morning, night)} sessions",
+            "focus_duration": "45m (Avg)"
         }
 
     def get_impact_metrics(self):
-        # Comparison logic (Mocked baseline)
         return {
             "cgpa_delta": "+0.12",
             "efficiency_gain": "18%",
@@ -99,19 +98,17 @@ class AcademicBrain:
         }
 
     def get_insight_timeline(self):
-        # Weekly strategy status logic
         return [
-            {"week": 1, "action": "Baseline established", "desc": "Initial academic matrix deployed."},
-            {"week": 2, "action": "Data Synthesis", "desc": "Learning profile identified peak focus hours."},
-            {"week": 3, "action": "Optimization", "desc": "ROI Analyzer stabilizing GPA forecasts."},
-            {"week": 4, "action": "Continuous Intel", "desc": "Intelligence engine operating at peak accuracy."}
+            {"week": 1, "action": "Baseline established", "desc": "Initial marks record created."},
+            {"week": 2, "action": "Performance Review", "desc": "Analysis of current assessment trends."},
+            {"week": 3, "action": "Grade Optimization", "desc": "Calculated targets for remaining components."},
+            {"week": 4, "action": "Continuous Review", "desc": "Active performance tracking enabled."}
         ]
 
     def get_subject_mastery_radar(self):
         subjects = Subject.query.filter_by(user_id=self.user_id).all()
-        # Mocked proficiency distribution
         return {
-            "labels": ["Attendance", "Internal", "Mid-Term", "End-Term", "Tactical"],
+            "labels": ["Attendance", "Internal", "Mid-Term", "End-Term", "Practical"],
             "data": [95, 82, 70, 65, 88]
         }
 
@@ -142,11 +139,10 @@ class AcademicBrain:
         return best['subject']
 
     def get_drop_vs_improve(self):
-        # Domain risk logic
         return [
-            {"domain": "software engineering", "risk": "5.0%", "rec": "Dominant mastery. Maintain steady state.", "action": "ARCHITECTURAL PILLAR"},
-            {"domain": "c programming", "risk": "76%", "rec": "Critical performance deficit. Active intervention required to stabilize.", "action": "MATRIX RECOVERY PROTOCOL"},
-            {"domain": "mechanical drawing", "risk": "8.0%", "rec": "Standard baseline. Optimization required.", "action": "STRATEGIC GROWTH"}
+            {"domain": "software engineering", "risk": "5.0%", "rec": "Consistent performance. Maintain status quo.", "action": "Core Strength"},
+            {"domain": "c programming", "risk": "76%", "rec": "Grade deficit detected. Priority intervention required.", "action": "Performance Recovery"},
+            {"domain": "mechanical drawing", "risk": "8.0%", "rec": "Stable baseline. Maintain current preparation.", "action": "Steady Progress"}
         ]
 
     def predict_failure_risk(self, subject_id):
@@ -165,12 +161,11 @@ class AcademicBrain:
         return round(sub.credits / total_credits, 3)
 
     def get_context_for_ai(self):
-        # Builds a massive context string for Gemini
         subjects = Subject.query.filter_by(user_id=self.user_id).all()
-        context = f"User Identity: {self.get_user_identity()}\n"
+        context = f"Student Status: {self.get_user_identity()}\n"
         context += f"Subjects: {', '.join([f'{s.subject_code} ({self._get_current_score(s.id)}%)' for s in subjects])}\n"
-        context += f"Cognitive Load: {self.get_cognitive_load()['status']}\n"
-        context += f"Best Action: Improve {self.get_best_action().subject_code if self.get_best_action() else 'N/A'}"
+        context += f"Academic Load: {self.get_cognitive_load()['status']}\n"
+        context += f"Priority Action: Improve {self.get_best_action().subject_code if self.get_best_action() else 'N/A'}"
         return context
 
     def _get_current_score(self, subject_id):

@@ -6,6 +6,9 @@ from flask import Flask, jsonify
 from database import db
 from models import User
 from flask_login import LoginManager
+from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from sqlalchemy import text, inspect
 from flask_cors import CORS
 import cloudinary
@@ -24,37 +27,39 @@ if not os.getenv('RENDER'):
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_app():
+from config import config_by_name
+
+# Initialize extensions outside for global access if needed
+jwt = JWTManager()
+limiter = Limiter(key_func=get_remote_address)
+
+def create_app(config_name='dev'):
+    if os.getenv('RENDER'):
+        config_name = 'prod'
+        
     app = Flask(__name__, 
                 template_folder='../frontend/templates', 
                 static_folder='../frontend/static')
 
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'nexora-fallback-key-123')
-    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=20)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # Database Pathing
-    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-    INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
-    if not os.path.exists(INSTANCE_DIR):
-        os.makedirs(INSTANCE_DIR)
+    app.config.from_object(config_by_name[config_name])
     
-    db_path = os.path.join(INSTANCE_DIR, 'grades.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=60)
 
     # Initialize Extensions
     db.init_app(app)
     CORS(app)
     oauth.init_app(app)
+    jwt.init_app(app)
+    limiter.init_app(app)
     
     oauth.register(
         name='google',
         client_id=os.getenv('GOOGLE_CLIENT_ID'),
         client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
         server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-        client_kwargs={
-            'scope': 'openid email profile'
-        }
+        client_kwargs={'scope': 'openid email profile'}
     )
     
     login_manager = LoginManager()
@@ -63,38 +68,34 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        try:
-            return User.query.get(int(user_id))
-        except: return None
+        return User.query.get(int(user_id))
 
     # Cloudinary
     cloudinary.config(
-        cloud_name = os.getenv("CLOUDINARY_NAME"),
-        api_key = os.getenv("CLOUDINARY_KEY"),
-        api_secret = os.getenv("CLOUDINARY_SECRET")
+        cloud_name = app.config['CLOUDINARY_NAME'],
+        api_key = app.config['CLOUDINARY_KEY'],
+        api_secret = app.config['CLOUDINARY_SECRET']
     )
 
     # Blueprints
     from routes.auth import auth_bp
     from routes.academic import academic_bp
     from routes.api import api_bp
-    from routes.admin import admin_bp
-
-    app.register_blueprint(auth_bp)
+    
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(academic_bp)
-    app.register_blueprint(api_bp)
-    app.register_blueprint(admin_bp)
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     @app.context_processor
     def inject_globals():
         return {'current_hour': datetime.datetime.now().hour}
 
-    # Error Handler for Debugging on Render
     @app.errorhandler(500)
     def internal_error(e):
         return jsonify({
+            "success": False,
             "error": "Internal Server Error",
-            "traceback": traceback.format_exc()
+            "message": str(e) if not os.getenv('RENDER') else "Contact Support"
         }), 500
 
     return app
@@ -127,4 +128,4 @@ with app.app_context():
         db.session.rollback()
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)

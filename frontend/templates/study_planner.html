@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}Study Planner - Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <header class="content-header" style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">STUDY<span style="color: var(--primary);">PLANNER</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Plan and track your preparation sessions</p>
+        </div>
+        <button class="btn-primary" style="padding: 12px 25px;">Add New Goal</button>
+    </header>
+
+    <div class="responsive-grid" style="grid-template-columns: 2fr 1fr; gap: 30px;">
+        <div class="left-col">
+            <div class="panel" style="margin-bottom: 30px;">
+                <h3 style="margin-bottom: 25px;">Subject Progress</h3>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    {% for sub in subjects %}
+                    <div style="padding-bottom: 20px; border-bottom: 1px solid var(--bg-light); last-child: border-bottom: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div>
+                                <span style="font-size: 0.7rem; font-weight: 850; color: var(--primary); letter-spacing: 1px;">{{ sub.subject_code }}</span>
+                                <h4 style="margin: 0; font-size: 1rem; font-weight: 800;">{{ sub.subject_name }}</h4>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 0.8rem; font-weight: 850; color: var(--text-main);">75% Prep</span>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700;">Target: 95%</div>
+                            </div>
+                        </div>
+                        <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                            <div style="width: 75%; height: 100%; background: var(--primary);"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="panel">
+                <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Study Activity Log</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    {% if logs %}
+                        {% for log in logs[:6] %}
+                        <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: var(--bg-light); border-radius: 12px;">
+                            <div style="width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--primary);">{{ log.duration_hours|int }}h</div>
+                            <div>
+                                <div style="font-size: 0.8rem; font-weight: 850;">{{ log.timestamp.strftime('%d %b') }}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">System focus logged</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 20px;">No focus cycles recorded.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

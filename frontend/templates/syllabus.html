@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}Course Syllabus - Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <header class="content-header" style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">COURSE<span style="color: var(--primary);">SYLLABUS</span></h1>
+        <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Subject-wise academic blueprints and curriculum details</p>
+    </header>
+
+    <div class="responsive-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
+        {% for sub in subjects %}
+        <div class="panel" style="padding: 25px;">
+            <div style="font-size: 0.7rem; font-weight: 850; color: var(--primary); letter-spacing: 1px; margin-bottom: 10px;">{{ sub.subject_code }}</div>
+            <h3 style="margin-bottom: 20px; font-size: 1.2rem;">{{ sub.subject_name }}</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+                <div style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Curriculum.pdf</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>5 Units Identified</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="flex: 1; font-size: 0.75rem; padding: 10px;">View Syllabus</button>
+                <button class="btn-primary" style="background: var(--bg-light); color: var(--text-main); border: 1px solid var(--panel-border); flex: 1; font-size: 0.75rem; padding: 10px;">Update</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="panel" style="margin-top: 40px; border: 2px dashed var(--panel-border); background: rgba(59, 130, 246, 0.02); text-align: center; padding: 50px;">
+        <svg style="width: 40px; height: 40px; color: var(--text-muted); margin-bottom: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        <h3 style="margin-bottom: 10px;">Upload New Syllabus</h3>
+        <p style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem; margin-bottom: 25px;">Integrate new curriculum data into your academic record.</p>
+        <button class="btn-primary" style="padding: 12px 30px;">Select PDF File</button>
+    </div>
+</div>
+{% endblock %}

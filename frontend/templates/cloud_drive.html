@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 
-{% block title %}Cloud Vault | Nexora{% endblock %}
+{% block title %}Cloud Drive - Nexora{% endblock %}
 
 {% block content %}
 <div class="vault-container animate-in">
     <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 35px;">
         <div>
-            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">CLOUD<span style="color: var(--primary);">VAULT</span></h1>
-            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Secure academic artifact repository</p>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">CLOUD<span style="color: var(--primary);">DRIVE</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Secure academic file storage and repository</p>
         </div>
         <div style="display: flex; gap: 15px;">
-            <button onclick="document.getElementById('file-input').click()" class="btn-primary" style="padding: 12px 25px;">+ SECURE ARTIFACT</button>
+            <button onclick="document.getElementById('file-input').click()" class="btn-primary" style="padding: 12px 25px;">+ UPLOAD FILE</button>
             <input type="file" id="file-input" style="display: none;" onchange="uploadArtifact(this)">
         </div>
     </header>
@@ -57,7 +57,7 @@ async function uploadArtifact(input) {
     const formData = new FormData();
     formData.append('file', input.files[0]);
     
-    AppLoader.show("ENCRYPTING & UPLOADING...");
+    AppLoader.show("UPLOADING...");
     try {
         const res = await fetch('/api/upload', {
             method: 'POST',
@@ -65,34 +65,34 @@ async function uploadArtifact(input) {
         });
         const data = await res.json();
         if (data.success) {
-            showToast("Artifact Secured!", "success");
+            showToast("File Uploaded!", "success");
             location.reload();
         } else {
             showToast(data.error || "Upload failed", "error");
         }
     } catch(e) {
-        showToast("Signal Interrupted", "error");
+        showToast("Upload Interrupted", "error");
     }
     AppLoader.hide();
 }
 
 async function purgeArtifact(id) {
-    if (!confirm("Are you sure you want to purge this artifact from the vault?")) return;
+    if (!confirm("Are you sure you want to delete this file from the drive?")) return;
     
-    AppLoader.show("PURGING DATA...");
+    AppLoader.show("DELETING FILE...");
     try {
         const res = await fetch(`/api/delete-file/${id}`, {
             method: 'DELETE'
         });
         const data = await res.json();
         if (data.success) {
-            showToast("Artifact Purged", "success");
+            showToast("File Deleted", "success");
             location.reload();
         } else {
-            showToast(data.error || "Purge failed", "error");
+            showToast(data.error || "Delete failed", "error");
         }
     } catch(e) {
-        showToast("Signal Interrupted", "error");
+        showToast("Action Interrupted", "error");
     }
     AppLoader.hide();
 }

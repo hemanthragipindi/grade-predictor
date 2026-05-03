@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 
-{% block title %}Architecture Settings | Nexora{% endblock %}
+{% block title %}Account Settings | Nexora{% endblock %}
 
 {% block content %}
 <div class="settings-container animate-in" style="max-width: 900px;">
     <header class="content-header" style="margin-bottom: 35px;">
-        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">SYSTEM<span style="color: var(--primary);">SETTINGS</span></h1>
-        <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Configure neural interface parameters</p>
+        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">ACCOUNT<span style="color: var(--primary);">SETTINGS</span></h1>
+        <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Manage your profile and account preferences</p>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -22,16 +22,26 @@
     <form action="{{ url_for('academic.settings') }}" method="POST">
         <!-- Identity Config -->
         <div class="panel" style="padding: 30px; margin-bottom: 25px;">
-            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Identity Configuration</h3>
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">User Profile</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
                 <div class="form-group">
-                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Display Name</label>
-                    <input type="text" name="display_name" value="{{ settings.display_name or current_user.name }}" 
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Full Name</label>
+                    <input type="text" name="name" value="{{ current_user.name }}" required
                            style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
                 </div>
                 <div class="form-group">
-                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Strategic Email</label>
-                    <input type="email" name="strategic_email" value="{{ settings.strategic_email or current_user.email }}" 
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Email Address</label>
+                    <input type="email" name="email" value="{{ current_user.email }}" required
+                           style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Mobile Number</label>
+                    <input type="text" name="mobile" value="{{ current_user.mobile or '' }}" 
+                           style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Account Password</label>
+                    <input type="password" name="password" placeholder="Leave blank to keep current" 
                            style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
                 </div>
             </div>
@@ -39,38 +49,38 @@
 
         <!-- Notification Gateway -->
         <div class="panel" style="padding: 30px; margin-bottom: 25px;">
-            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Notification Gateway (Ntfy.sh)</h3>
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Notifications (Ntfy.sh)</h3>
             <div class="form-group" style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Target Topic ID</label>
+                <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Ntfy Topic ID</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" name="ntfy_topic" value="{{ settings.ntfy_topic or '' }}" placeholder="nexora_user_unique_id"
+                    <input type="text" name="ntfy_topic" value="{{ settings.ntfy_topic or '' }}" placeholder="your_unique_topic"
                            style="flex: 1; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
                     <button type="button" onclick="testNotification()" class="btn-primary" style="background: var(--bg-light); color: var(--text-main); border: 1px solid var(--panel-border); width: fit-content; padding: 0 20px;">Test Signal</button>
                 </div>
-                <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 10px; font-weight: 600;">Direct scoring updates will be broadcast to ntfy.sh/your_topic</p>
+                <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 10px; font-weight: 600;">Get real-time scoring updates on your device via ntfy.sh</p>
             </div>
         </div>
 
         <!-- AI Core Settings -->
         <div class="panel" style="padding: 30px; margin-bottom: 35px;">
-            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">AI Core Parameters</h3>
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 25px;">Application Preferences</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
                 <div class="form-group">
-                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Model Personality</label>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Advisor Tone</label>
                     <select name="ai_personality" style="width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--panel-border); background: var(--bg-light); font-weight: 600; color: var(--text-main); outline: none;">
                         <option value="strategic" {% if settings.ai_personality == 'strategic' %}selected{% endif %}>Strategic Advisor</option>
                         <option value="direct" {% if settings.ai_personality == 'direct' %}selected{% endif %}>Direct Auditor</option>
-                        <option value="encouraging" {% if settings.ai_personality == 'encouraging' %}selected{% endif %}>Motivation Matrix</option>
+                        <option value="encouraging" {% if settings.ai_personality == 'encouraging' %}selected{% endif %}>Motivational</option>
                     </select>
                 </div>
                 <div class="form-group" style="display: flex; align-items: center; gap: 15px; padding-top: 30px;">
                     <input type="checkbox" name="enable_predictive" id="enable_predictive" {% if settings.enable_predictive == 'on' %}checked{% endif %} style="width: 20px; height: 20px; accent-color: var(--primary);">
-                    <label for="enable_predictive" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); cursor: pointer;">Enable Predictive Scoring Matrix</label>
+                    <label for="enable_predictive" style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); cursor: pointer;">Enable Predictive Analytics</label>
                 </div>
             </div>
         </div>
 
-        <button type="submit" class="btn-primary" style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 1px;">SYNCHRONIZE SYSTEM PARAMETERS</button>
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 1px;">SAVE ACCOUNT CHANGES</button>
     </form>
 </div>
 

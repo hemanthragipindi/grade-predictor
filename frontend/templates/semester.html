@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 
-{% block title %}Semester {{ semester_id }} Analysis | Nexora{% endblock %}
+{% block title %}Semester {{ semester_id }} Analysis - Nexora{% endblock %}
 
 {% block content %}
 <div class="semester-container animate-in">
     <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
         <div>
             <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">SEMESTER<span style="color: var(--primary);">{{ semester_id }}</span></h1>
-            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Localized performance audit</p>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Performance review and GPA analysis</p>
         </div>
         <div class="tgpa-badge" style="background: var(--bg-light); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--panel-border); text-align: right;">
-            <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Semester TGPA</div>
+            <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Semester GPA</div>
             <div style="font-size: 1.5rem; font-weight: 850; color: var(--primary);">{{ "%.2f"|format(tgpa) }}</div>
         </div>
     </header>
@@ -19,7 +19,7 @@
         <!-- Subject List -->
         <div class="panel" style="padding: 0; overflow: hidden;">
             <div style="padding: 20px 25px; border-bottom: 1px solid var(--panel-border); background: var(--bg-light);">
-                <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Module Performance Matrix</h3>
+                <h3 style="font-size: 0.8rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase;">Subject Performance</h3>
             </div>
             <div style="padding: 10px;">
                 {% for r in results %}

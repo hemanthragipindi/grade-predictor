@@ -1,15 +1,49 @@
 {% extends "layout.html" %}
 
-{% block title %}Authentication Hub | Nexora{% endblock %}
+{% block title %}{% if mode == 'landing' %}Grade Predictor - Master Your Performance{% else %}Sign In - Nexora{% endif %}{% endblock %}
 
 {% block auth_content %}
-<div class="auth-wrapper animate-in" style="width: 100%; max-width: 440px; padding: 20px;">
+<div class="auth-wrapper animate-in" style="width: 100%; max-width: {% if mode == 'landing' %}900px{% else %}440px{% endif %}; padding: 20px;">
+    {% if mode == 'landing' %}
+    <!-- Professional Landing Page -->
+    <div class="panel" style="padding: 60px; text-align: center; background: var(--panel-white); border: 1px solid var(--panel-border);">
+        <div class="brand-logo" style="font-size: 4rem; font-weight: 950; letter-spacing: -3px; color: var(--text-main); margin-bottom: 20px;">
+            GRADE<span style="color: var(--primary);">PREDICTOR</span>
+        </div>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Master Your Academic Performance</h2>
+        <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto 40px;">
+            Nexora Grade Predictor is a professional platform designed to help students track marks, analyze performance trends, and predict final grades with precision.
+        </p>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <a href="{{ url_for('auth.login') }}" class="btn-primary" style="padding: 18px 40px; font-size: 1.1rem; text-decoration: none;">Get Started Now</a>
+            <a href="#features" class="btn-primary" style="background: var(--bg-light); color: var(--text-main); border: 1px solid var(--panel-border); padding: 18px 40px; font-size: 1.1rem; text-decoration: none;">Learn More</a>
+        </div>
+        
+        <div id="features" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 80px; text-align: left;">
+            <div class="feature-card">
+                <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 15px;">📊</div>
+                <h4 style="font-weight: 850; margin-bottom: 10px;">Smart Analytics</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Visualize your performance distribution and identify key impact areas.</p>
+            </div>
+            <div class="feature-card">
+                <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 15px;">🔮</div>
+                <h4 style="font-weight: 850; margin-bottom: 10px;">Grade Prediction</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Accurate projections based on your current continuous assessment scores.</p>
+            </div>
+            <div class="feature-card">
+                <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 15px;">☁️</div>
+                <h4 style="font-weight: 850; margin-bottom: 10px;">Cloud Vault</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Securely store and manage your academic certificates and study materials.</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
     <!-- Branding Header -->
     <header class="auth-branding" style="text-align: center; margin-bottom: 40px;">
         <div class="brand-logo" style="font-size: 2.8rem; font-weight: 850; letter-spacing: -2px; color: var(--text-main); margin-bottom: 5px;">
             NEXORA<span style="color: var(--primary);">AUTH</span>
         </div>
-        <p class="text-muted" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">Secure Gateway Protocol</p>
+        <p class="text-muted" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">Secure Academic Portal</p>
     </header>
 
     <div class="panel auth-panel" style="padding: 0; overflow: hidden; border: 1px solid var(--panel-border); background: var(--panel-white);">
@@ -24,11 +58,11 @@
             <form id="login-form" method="POST" action="{{ url_for('auth.login') }}">
                 <div id="login-step-1">
                     <div class="form-group" style="margin-bottom: 25px;">
-                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Access Identity</label>
+                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Account Identity</label>
                         <input type="text" name="mobile" id="login-mobile" placeholder="Email or Mobile" required
                                style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s; font-weight: 600;">
                     </div>
-                    <button type="button" onclick="verifyMobile()" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Initiate Scan</button>
+                    <button type="button" onclick="verifyMobile()" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Continue</button>
                 </div>
 
                 <div id="login-step-2" style="display: none;" class="animate-in">
@@ -37,44 +71,44 @@
                         <button type="button" onclick="resetLogin()" style="background: none; border: none; color: var(--text-muted); font-size: 0.65rem; cursor: pointer; text-decoration: underline; font-weight: 700;">Change</button>
                     </div>
                     <div class="form-group" style="margin-bottom: 25px;">
-                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Security Key</label>
+                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">Password</label>
                         <input type="password" name="password" id="login-password" placeholder="••••••••" required
                                style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 15px; border-radius: 12px; font-size: 1.1rem; outline: none; transition: 0.3s;">
                     </div>
-                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; background: var(--secondary); box-shadow: 0 10px 20px -5px rgba(16,185,129,0.2); font-size: 0.95rem;">Enter Nexus</button>
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; background: var(--secondary); box-shadow: 0 10px 20px -5px rgba(16,185,129,0.2); font-size: 0.95rem;">Sign In</button>
                 </div>
             </form>
 
             <!-- Register Form -->
             <form id="register-form" method="POST" action="{{ url_for('auth.register') }}" style="display: none;">
                 <div class="form-group" style="margin-bottom: 18px;">
-                    <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Full Identity</label>
-                    <input type="text" name="name" placeholder="User Name" required
+                    <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Full Name</label>
+                    <input type="text" name="name" placeholder="Your Name" required
                            style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px 15px; border-radius: 10px; font-weight: 600;">
                 </div>
                 <div class="form-group" style="margin-bottom: 18px;">
-                    <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Communication Node (Email)</label>
-                    <input type="email" name="email" placeholder="email@nexora.com" required
+                    <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Email Address</label>
+                    <input type="email" name="email" placeholder="email@example.com" required
                            style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px 15px; border-radius: 10px; font-weight: 600;">
                 </div>
                 <div class="form-group" style="margin-bottom: 18px;">
-                    <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Mobile Contact</label>
+                    <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Mobile Number</label>
                     <input type="tel" name="mobile" placeholder="+91 00000 00000" required
                            style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px 15px; border-radius: 10px; font-weight: 600;">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                     <div class="form-group">
-                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Key</label>
+                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Password</label>
                         <input type="password" name="password" id="reg-pass" placeholder="••••" required
                                style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px; border-radius: 10px;">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Verify</label>
+                        <label class="form-label" style="display: block; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">Confirm</label>
                         <input type="password" name="confirm_password" id="reg-confirm" placeholder="••••" required
                                style="width: 100%; background: var(--bg-light); border: 1px solid var(--panel-border); color: var(--text-main); padding: 12px; border-radius: 10px;">
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Generate Identity</button>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem;">Create Account</button>
             </form>
 
             <!-- Social Login Separator -->
@@ -91,6 +125,7 @@
             </a>
         </div>
     </div>
+    {% endif %}
 </div>
 
 <style>
@@ -130,7 +165,7 @@ async function verifyMobile() {
     const rawIdentifier = document.getElementById('login-mobile').value;
     if (!rawIdentifier) return showToast("Identification required", "warning");
 
-    AppLoader.show("SCANNING NODE...");
+    AppLoader.show("CONTINUING...");
 
     try {
         const res = await fetch('/api/check-mobile', {
@@ -146,7 +181,7 @@ async function verifyMobile() {
             document.getElementById('verified-mobile').innerText = rawIdentifier;
             AppLoader.hide();
         } else {
-            showToast("Node not found", "warning");
+            showToast("Account not found", "warning");
             AppLoader.hide();
         }
     } catch(e) {
@@ -181,13 +216,12 @@ document.getElementById('register-form').onsubmit = function(e) {
     const pass = document.getElementById('reg-pass').value;
     const confirm = document.getElementById('reg-confirm').value;
     if (pass !== confirm) {
-        showToast("Keys do not match!", "warning");
+        showToast("Passwords do not match!", "warning");
         e.preventDefault();
         return false;
     }
-    AppLoader.show("ENCRYPTING IDENTITY...");
+    AppLoader.show("CREATING ACCOUNT...");
     return true;
 };
 </script>
 {% endblock %}
-

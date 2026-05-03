@@ -10,24 +10,7 @@ import json
 
 academic_bp = Blueprint('academic', __name__)
 
-def get_subject_score_and_grade(subject_id):
-    sub = Subject.query.get(subject_id)
-    components = Component.query.filter_by(subject_id=subject_id).all()
-    score = 0
-    for comp in components:
-        if comp.component_name != "Continuous Assessment":
-            m = Marks.query.filter_by(subject_id=subject_id, component_id=comp.id).first()
-            if m and comp.max_marks > 0:
-                score += (m.marks_obtained / comp.max_marks) * comp.weight
-        else:
-            ca_rows = CAMarks.query.filter_by(subject_id=subject_id).all()
-            if ca_rows:
-                ca_score_contrib, _, _ = calc_ca_score(sub, ca_rows, comp.weight)
-                score += math.ceil(ca_score_contrib)
-
-    score = round(score, 2)
-    grade, gpa = get_grade(score, sub.subject_code)
-    return score, grade, gpa
+from logic.scoring import get_subject_score_and_grade
 
 @academic_bp.route("/")
 def index():
@@ -181,26 +164,70 @@ def assistant():
 @academic_bp.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
-    settings_path = os.path.join(os.getcwd(), 'backend', 'instance', 'settings.json')
-    
     if request.method == "POST":
-        # Simplified settings persistence for demo
-        current_settings = {}
-        if os.path.exists(settings_path):
-            with open(settings_path, 'r') as f: current_settings = json.load(f)
+        name = request.form.get("name")
+        email = request.form.get("email")
+        mobile = request.form.get("mobile")
+        new_password = request.form.get("password")
+        
+        current_user.name = name
+        current_user.email = email
+        current_user.mobile = mobile
+        
+        if new_password:
+            from werkzeug.security import generate_password_hash
+            current_user.password = generate_password_hash(new_password)
             
-        form_data = request.form.to_dict()
-        current_settings.update(form_data)
-        
-        with open(settings_path, 'w') as f: json.dump(current_settings, f)
-        flash("Architecture parameters updated.", "success")
+        db.session.commit()
+        flash("Account settings updated successfully.", "success")
         return redirect(url_for('academic.settings'))
-
-    current_settings = {}
-    if os.path.exists(settings_path):
-        with open(settings_path, 'r') as f: current_settings = json.load(f)
         
-    return render_template("settings.html", settings=current_settings)
+    return render_template("settings.html")
+
+@academic_bp.route("/models")
+@login_required
+def models_page():
+    from intelligence import AcademicBrain
+    brain = AcademicBrain(db.session, current_user.id)
+    subjects = Subject.query.filter_by(user_id=current_user.id).all()
+    
+    results = []
+    for sub in subjects:
+        score, grade, gpa = get_subject_score_and_grade(sub.id)
+        results.append({
+            "subject": sub,
+            "score": score,
+            "grade": grade,
+            "risk": brain.predict_failure_risk(sub.id),
+            "suggestion": "Focus on high-weight components." if score < 70 else "Maintain current velocity."
+        })
+        
+    return render_template("models.html", results=results)
+
+@academic_bp.route("/study-planner")
+@login_required
+def study_planner():
+    subjects = Subject.query.filter_by(user_id=current_user.id).all()
+    logs = StudyLog.query.filter_by(user_id=current_user.id).order_by(StudyLog.timestamp.desc()).all()
+    return render_template("study_planner.html", subjects=subjects, logs=logs)
+
+@academic_bp.route("/assessments")
+@login_required
+def assessments():
+    subjects = Subject.query.filter_by(user_id=current_user.id).all()
+    # Mock upcoming exams for demo
+    upcoming = [
+        {"subject": subjects[0].subject_code if subjects else "N/A", "date": "2026-05-15", "type": "Final Exam"},
+        {"subject": subjects[1].subject_code if len(subjects) > 1 else "N/A", "date": "2026-05-20", "type": "Project Review"}
+    ]
+    return render_template("assessments.html", upcoming=upcoming, subjects=subjects)
+
+@academic_bp.route("/syllabus")
+@login_required
+def syllabus():
+    subjects = Subject.query.filter_by(user_id=current_user.id).all()
+    syllabus_data = SyllabusFile.query.filter(SyllabusFile.subject_id.in_([s.id for s in subjects])).all()
+    return render_template("syllabus.html", subjects=subjects, syllabus_data=syllabus_data)
 
 @academic_bp.route("/subject/<int:subject_id>", methods=["GET", "POST"])
 @login_required

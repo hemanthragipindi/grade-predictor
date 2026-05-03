@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}Grade Predictions - Nexora{% endblock %}
+
+{% block content %}
+<div class="container animate-in">
+    <header class="content-header" style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">GRADE<span style="color: var(--primary);">PREDICTIONS</span></h1>
+        <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Data-driven performance projections and risk analysis</p>
+    </header>
+
+    <div class="responsive-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+        {% if results %}
+            {% for r in results %}
+            <div class="panel" style="padding: 30px; border: 1px solid var(--panel-border); background: var(--panel-white); position: relative; overflow: hidden;">
+                {% if r.risk == 'Critical' or r.risk == 'High' %}
+                <div style="position: absolute; top: 15px; right: 15px; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 5px 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 850; letter-spacing: 1px;">ACTION REQUIRED</div>
+                {% endif %}
+
+                <div style="font-size: 0.75rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1.5px;">{{ r.subject.subject_code }}</div>
+                <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 25px;">{{ r.subject.subject_name }}</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div>
+                        <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">Predicted Grade</div>
+                        <div style="font-size: 1.8rem; font-weight: 900; color: var(--primary);">{{ r.grade }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;">Confidence</div>
+                        <div style="font-size: 1.8rem; font-weight: 900; color: var(--text-main);">94%</div>
+                    </div>
+                </div>
+
+                <div class="panel" style="background: var(--bg-light); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Improvement Tip</div>
+                    <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin: 0; line-height: 1.5;">{{ r.suggestion }}</p>
+                </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 0.7rem; font-weight: 800; color: {% if r.risk == 'Critical' or r.risk == 'High' %}#ef4444{% else %}#10b981{% endif %};">
+                    RISK LEVEL: {{ r.risk }}
+                </div>
+                <a href="{{ url_for('academic.subject_page', subject_id=r.subject.id) }}" style="font-size: 0.75rem; font-weight: 850; color: var(--primary); text-decoration: none;">TUNE PARAMETERS →</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,17 +1,17 @@
 {% extends "layout.html" %}
 
-{% block title %}Neural Analytics | Nexora{% endblock %}
+{% block title %}Performance Analytics | Nexora{% endblock %}
 
 {% block content %}
 <div class="analytics-container animate-in">
     <!-- Header -->
     <header class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
         <div>
-            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">NEURAL<span style="color: var(--primary);">ANALYTICS</span></h1>
-            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Deep-matrix performance synthesis</p>
+            <h1 style="font-size: 2.2rem; font-weight: 850; letter-spacing: -1.5px; color: var(--text-main); margin: 0;">PERFORMANCE<span style="color: var(--primary);">ANALYTICS</span></h1>
+            <p style="color: var(--text-muted); font-weight: 600; margin-top: 5px;">Detailed academic performance analysis</p>
         </div>
         <div class="cgpa-badge" style="background: var(--bg-light); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--panel-border); text-align: right;">
-            <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Network CGPA</div>
+            <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Current GPA</div>
             <div style="font-size: 1.5rem; font-weight: 850; color: var(--primary);">{{ "%.2f"|format(cgpa) }}</div>
         </div>
     </header>
@@ -19,7 +19,7 @@
     <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px;">
         <!-- Mastery Radar -->
         <div class="panel" style="padding: 25px;">
-            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Mastery Distribution Radar</h3>
+            <h3 style="font-size: 0.8rem; font-weight: 850; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 20px;">Subject Performance Overview</h3>
             <div style="height: 350px;">
                 <canvas id="masteryRadar"></canvas>
             </div>
@@ -28,7 +28,7 @@
         <!-- Best Action Card -->
         <div class="panel" style="padding: 25px; background: var(--primary); color: white; border: none; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;">
             <div style="position: absolute; top: -20px; right: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-            <h3 style="font-size: 0.7rem; font-weight: 850; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 15px;">Tactical Recommendation</h3>
+            <h3 style="font-size: 0.7rem; font-weight: 850; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 15px;">Performance Tip</h3>
             {% if best_action %}
             <div style="font-size: 2.5rem; font-weight: 850; letter-spacing: -2px; line-height: 1; margin-bottom: 10px;">{{ best_action.subject_code }}</div>
             <p style="font-weight: 600; opacity: 0.9; margin-bottom: 25px;">Highest yield subject detected. Improving this module will have the maximum impact on your Network CGPA.</p>

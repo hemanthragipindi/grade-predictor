@@ -13,6 +13,17 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "mobile": self.mobile,
+            "profile_pic": self.profile_pic,
+            "is_admin": self.is_admin,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
+
 class Subject(db.Model):
     __tablename__ = "subjects"
     id = db.Column(db.Integer, primary_key=True)
@@ -22,6 +33,15 @@ class Subject(db.Model):
     credits = db.Column(db.Integer)
     semester = db.Column(db.Integer, default=2)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "subject_code": self.subject_code,
+            "subject_name": self.subject_name,
+            "credits": self.credits,
+            "semester": self.semester
+        }
+
 class Component(db.Model):
     __tablename__ = "components"
     id = db.Column(db.Integer, primary_key=True)
@@ -30,12 +50,27 @@ class Component(db.Model):
     max_marks = db.Column(db.Float)
     weight = db.Column(db.Float)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "component_name": self.component_name,
+            "max_marks": self.max_marks,
+            "weight": self.weight
+        }
+
 class Marks(db.Model):
     __tablename__ = "marks"
     id = db.Column(db.Integer, primary_key=True)
     subject_id = db.Column(db.Integer)
     component_id = db.Column(db.Integer)
     marks_obtained = db.Column(db.Float)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "component_id": self.component_id,
+            "marks_obtained": self.marks_obtained
+        }
 
 class CAMarks(db.Model):
     __tablename__ = "ca_marks"
@@ -44,6 +79,14 @@ class CAMarks(db.Model):
     marks = db.Column(db.Float)
     max_marks = db.Column(db.Float)
     weight = db.Column(db.Float, default=0.0)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "marks": self.marks,
+            "max_marks": self.max_marks,
+            "weight": self.weight
+        }
 
 class CloudFile(db.Model):
     __tablename__ = "cloud_files"
@@ -56,6 +99,15 @@ class CloudFile(db.Model):
     provider = db.Column(db.String(20)) # 'cloudinary' or 'firebase'
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "file_name": self.file_name,
+            "file_type": self.file_type,
+            "file_url": self.file_url,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None
+        }
+
 class StudyLog(db.Model):
     __tablename__ = "study_logs"
     id = db.Column(db.Integer, primary_key=True)
@@ -64,28 +116,13 @@ class StudyLog(db.Model):
     duration_hours = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-class LearningProfile(db.Model):
-    __tablename__ = "learning_profiles"
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    peak_focus_hour = db.Column(db.Integer)
-    preferred_session_length = db.Column(db.Integer)
-
-class PredictionAudit(db.Model):
-    __tablename__ = "prediction_audits"
-    id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.Integer)
-    predicted_score = db.Column(db.Float)
-    actual_score = db.Column(db.Float)
-    accuracy_percentage = db.Column(db.Float)
-    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-
-class SyllabusFile(db.Model):
-    __tablename__ = "syllabus"
-    id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), unique=True)
-    file_path = db.Column(db.String(255))
-    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "subject_id": self.subject_id,
+            "duration_hours": self.duration_hours,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None
+        }
 
 class AssessmentProgress(db.Model):
     __tablename__ = "assessment_progress"
@@ -95,3 +132,13 @@ class AssessmentProgress(db.Model):
     topics = db.Column(db.JSON)
     notes = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "subject_id": self.subject_id,
+            "unit_number": self.unit_number,
+            "topics": self.topics,
+            "notes": self.notes,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None
+        }
