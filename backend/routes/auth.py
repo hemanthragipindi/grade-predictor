@@ -32,6 +32,7 @@ def login():
 @auth_bp.route("/", methods=["GET"])
 def landing():
     return render_template("auth.html", mode='landing')
+
 @auth_bp.route("/register", methods=["POST"])
 def register():
     name = request.form.get("name")
@@ -122,3 +123,8 @@ def google_callback():
             access_token = create_access_token(identity=user.id)
             return jsonify({"token": access_token, "user": user.to_dict()})
             
+        return redirect(url_for("academic.dashboard"))
+    except Exception as e:
+        print(f"OAuth Error: {traceback.format_exc()}")
+        flash("An error occurred during Google authentication.", "error")
+        return redirect(url_for("auth.login"))
