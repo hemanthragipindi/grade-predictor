@@ -161,9 +161,3 @@ def google_mobile_auth():
         })
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
-
-@auth_bp.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for("auth.login"))
