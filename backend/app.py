@@ -52,7 +52,7 @@ def create_app(config_name='dev'):
     
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False
-    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=60)
+    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=3650) # Practically forever
 
     # Initialize Extensions
     db.init_app(app)

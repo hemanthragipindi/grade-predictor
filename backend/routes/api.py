@@ -139,7 +139,7 @@ def get_dashboard(user_id):
 @api_bp.route("/version", methods=["GET"])
 def get_version():
     return jsonify({
-        "version": "1.0.0",
+        "version": "1.0.1",
         "apk_url": "https://github.com/hemanthragipindi/grade-predictor/releases/latest/download/app-release.apk",
         "force_update": true
     })
