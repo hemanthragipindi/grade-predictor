@@ -54,13 +54,14 @@ def create_app(config_name='dev'):
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False
     app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=3650) # Practically forever
 
-    # Initialize Extensions
+    print("APP: Initializing extensions...")
     db.init_app(app)
     CORS(app)
     oauth.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
     
+    print("APP: Registering OAuth...")
     oauth.register(
         name='google',
         client_id=os.getenv('GOOGLE_CLIENT_ID'),
@@ -69,6 +70,7 @@ def create_app(config_name='dev'):
         client_kwargs={'scope': 'openid email profile'}
     )
     
+    print("APP: Initializing Login Manager...")
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -77,14 +79,14 @@ def create_app(config_name='dev'):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Cloudinary
+    print("APP: Configuring Cloudinary...")
     cloudinary.config(
         cloud_name = app.config['CLOUDINARY_NAME'],
         api_key = app.config['CLOUDINARY_KEY'],
         api_secret = app.config['CLOUDINARY_SECRET']
     )
 
-    # Blueprints
+    print("APP: Registering Blueprints...")
     from routes.auth import auth_bp
     from routes.academic import academic_bp
     from routes.api import api_bp
@@ -93,21 +95,10 @@ def create_app(config_name='dev'):
     app.register_blueprint(academic_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
 
+    print("APP: Finalizing setup...")
     @app.context_processor
     def inject_globals():
         return {'current_hour': datetime.datetime.now().hour}
-
-    @app.errorhandler(500)
-    def internal_error(e):
-        return jsonify({
-            "success": False,
-            "error": "Internal Server Error",
-            "message": str(e) if not os.getenv('RENDER') else "Contact Support"
-        }), 500
-
-    @app.route('/health')
-    def health_check():
-        return jsonify({"status": "OK", "timestamp": datetime.datetime.now().isoformat()}), 200
 
     return app
 
