@@ -60,6 +60,13 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             const Text(
+              'Academic Insights',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            _buildInsightsSection(user?['insights']),
+            const SizedBox(height: 32),
+            const Text(
               'Quick Actions',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
@@ -123,6 +130,50 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInsightsSection(dynamic insights) {
+    if (insights == null || (insights is List && insights.isEmpty)) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.blue.shade100),
+        ),
+        child: const Text('Add your subjects to see academic insights!', 
+          style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic)),
+      );
+    }
+
+    List<dynamic> insightList = insights is List ? insights : [insights.toString()];
+
+    return Column(
+      children: insightList.map((insight) => Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.blue.shade100),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.lightbulb, color: Colors.amber, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  insight.toString(),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+              ),
+            ],
+          ),
+        ),
+      )).toList(),
     );
   }
 }

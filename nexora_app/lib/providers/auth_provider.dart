@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../core/api_client.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -58,9 +59,6 @@ class AuthProvider extends ChangeNotifier {
       });
 
       if (response.data['success']) {
-        final token = response.data['token'];
-        await _storage.write(key: 'jwt_token', value: token);
-        _user = response.data['user'];
         _isLoading = false;
         notifyListeners();
         return true;
@@ -88,13 +86,49 @@ class AuthProvider extends ChangeNotifier {
       try {
         final response = await _api.dio.get('/dashboard');
         if (response.data['success']) {
-          // Merge dashboard data into user profile
-          _user = response.data['data'];
+          // MERGE dashboard data into existing user profile so we don't lose the name
+          _user = {
+            ...?_user,
+            ...response.data['data']
+          };
         }
       } catch (e) {
         await logout();
       }
     }
     notifyListeners();
+  }
+
+  Future<bool> signInWithGoogle() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      
+      if (account != null) {
+        final GoogleSignInAuthentication auth = await account.authentication;
+        final response = await _api.dio.post('/auth/google/mobile', data: {
+          'idToken': auth.idToken,
+        });
+
+        if (response.data['success']) {
+          final token = response.data['token'];
+          final userData = response.data['user'];
+          await _storage.write(key: 'jwt_token', value: token);
+          _user = userData;
+          notifyListeners();
+          return true;
+        }
+      }
+    } catch (e) {
+      _error = 'Google Sign-In failed.';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
 }

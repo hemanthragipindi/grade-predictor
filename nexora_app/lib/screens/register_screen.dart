@@ -10,6 +10,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
@@ -20,60 +21,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.blue.shade900, Colors.blue.shade700],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Card(
-              elevation: 12,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              child: Padding(
-                padding: const EdgeInsets.all(32),
+      backgroundColor: Colors.blue.shade50,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.person_add, size: 64, color: Colors.blue),
-                    const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Create Account',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade900,
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                    TextField(
+                    const SizedBox(height: 32),
+                    TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'Full Name',
                         prefixIcon: const Icon(Icons.person),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email Address',
                         prefixIcon: const Icon(Icons.email),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => value == null || !value.contains('@') ? 'Invalid email' : null,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    TextFormField(
                       controller: _mobileController,
                       decoration: InputDecoration(
                         labelText: 'Mobile Number',
-                        prefixIcon: const Icon(Icons.phone_android),
+                        prefixIcon: const Icon(Icons.phone),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => value == null || value.length < 10 ? 'Invalid mobile' : null,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    TextFormField(
                       controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
@@ -81,11 +82,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         prefixIcon: const Icon(Icons.lock),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => value == null || value.length < 6 ? 'Min 6 characters' : null,
                     ),
                     const SizedBox(height: 24),
                     if (auth.error != null)
-                      Text(auth.error!, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(auth.error!, style: const TextStyle(color: Colors.red)),
+                      ),
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -93,25 +97,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: auth.isLoading
                             ? null
                             : () async {
-                                final success = await auth.register(
-                                  _nameController.text,
-                                  _emailController.text,
-                                  _mobileController.text,
-                                  _passwordController.text,
-                                );
-                                if (success && mounted) {
-                                  Navigator.pushReplacementNamed(context, '/dashboard');
+                                if (_formKey.currentState!.validate()) {
+                                  final success = await auth.register(
+                                    _nameController.text,
+                                    _emailController.text,
+                                    _mobileController.text,
+                                    _passwordController.text,
+                                  );
+                                  if (success && mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Registration Successful! Please Login.'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  }
                                 }
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade700,
                           foregroundColor: Colors.white,
-                          elevation: 4,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
                         child: auth.isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Register', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            : const Text('Register', style: TextStyle(fontSize: 18)),
                       ),
                     ),
                     const SizedBox(height: 16),

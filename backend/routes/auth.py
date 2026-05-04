@@ -128,3 +128,42 @@ def google_callback():
         print(f"OAuth Error: {traceback.format_exc()}")
         flash("An error occurred during Google authentication.", "error")
         return redirect(url_for("auth.login"))
+
+@auth_bp.route("/google/mobile", methods=["POST"])
+def google_mobile_auth():
+    token = request.json.get('idToken')
+    if not token:
+        return jsonify({"success": False, "message": "ID Token missing"}), 400
+    
+    try:
+        # Verify the token with Google
+        from google.oauth2 import id_token
+        from google.auth.transport import requests
+        
+        # Use your Google Client ID here
+        CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        
+        email = idinfo['email']
+        name = idinfo.get('name', 'Google User')
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(name=name, email=email, mobile=None, password=None)
+            db.session.add(user)
+            db.session.commit()
+            
+        access_token = create_access_token(identity=user.id)
+        return jsonify({
+            "success": True, 
+            "token": access_token, 
+            "user": user.to_dict()
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@auth_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("auth.login"))

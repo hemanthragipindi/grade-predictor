@@ -108,8 +108,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 55,
                       child: OutlinedButton.icon(
-                        onPressed: () {
-                          // TODO: Implement Google Sign-In
+                        onPressed: () async {
+                          final success = await context.read<AuthProvider>().signInWithGoogle();
+                          if (success && mounted) {
+                            Navigator.pushReplacementNamed(context, '/dashboard');
+                          }
                         },
                         icon: Image.network('https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png', height: 24),
                         label: const Text('Sign in with Google', style: TextStyle(fontSize: 16, color: Colors.black87)),
