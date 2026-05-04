@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+print("DEBUG: Loading Configuration...")
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'nexora-dev-key-777')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
