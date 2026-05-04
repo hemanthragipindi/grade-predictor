@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiClient {
   final Dio dio = Dio(BaseOptions(
-    baseUrl: 'https://grade-predictor.onrender.com/api',
+    baseUrl: 'https://grade-predictor-1sv5.onrender.com/api',
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {'Content-Type': 'application/json'},
