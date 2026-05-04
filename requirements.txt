@@ -14,3 +14,4 @@ psycopg2-binary
 email-validator
 cryptography
 google-auth
+requests
