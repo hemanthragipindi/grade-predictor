@@ -111,34 +111,12 @@ def create_app(config_name='dev'):
 
     return app
 
-try:
-    app = create_app()
-
-    # Ensure instance folder exists for fallbacks
-    instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
-    if not os.path.exists(instance_path):
-        os.makedirs(instance_path)
-
-    # Database Initialization (Deferred to avoid startup hang)
-    @app.before_request
-    def initialize_database():
-        # Only run this once
-        if not hasattr(app, 'db_initialized'):
-            try:
-                with app.app_context():
-                    db.create_all()
-                    print("Database tables verified/created.")
-                    # Run migrations here if needed
-                app.db_initialized = True
-            except Exception as e:
-                print(f"Lazy DB Init Warning: {e}")
-                # Don't set initialized to True so it retries on next request
-except Exception as e:
-    print("CRITICAL: Application failed to start!")
-    traceback.print_exc()
-    raise e
-
 app = create_app()
 
 if __name__ == "__main__":
+    # Ensure instance folder exists
+    instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+    if not os.path.exists(instance_path):
+        os.makedirs(instance_path)
+    
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
