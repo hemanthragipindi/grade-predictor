@@ -42,8 +42,12 @@ jobs:
         run: flutter build apk --release
         working-directory: ${{ env.FLUTTER_DIR }}
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
         with:
-          name: nexora-apk
-          path: ${{ env.FLUTTER_DIR }}/build/app/outputs/flutter-apk/app-release.apk
+          tag_name: v1.0.1
+          name: Nexora Release v1.0.1
+          files: ${{ env.FLUTTER_DIR }}/build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
