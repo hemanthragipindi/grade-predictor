@@ -135,6 +135,7 @@ class DashboardScreen extends StatelessWidget {
             Navigator.pushNamed(context, '/prep');
           }
         },
+        child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
