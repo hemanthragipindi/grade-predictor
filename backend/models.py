@@ -142,3 +142,36 @@ class AssessmentProgress(db.Model):
             "notes": self.notes,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }
+
+class SyllabusFile(db.Model):
+    __tablename__ = "syllabus_files"
+    id = db.Column(db.Integer, primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
+    file_name = db.Column(db.String(255))
+    file_url = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "subject_id": self.subject_id,
+            "file_name": self.file_name,
+            "file_url": self.file_url,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None
+        }
+
+class LearningProfile(db.Model):
+    __tablename__ = "learning_profiles"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    learning_style = db.Column(db.String(50))
+    strengths = db.Column(db.JSON)
+    weaknesses = db.Column(db.JSON)
+
+class PredictionAudit(db.Model):
+    __tablename__ = "prediction_audits"
+    id = db.Column(db.Integer, primary_key=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
+    predicted_score = db.Column(db.Float)
+    actual_score = db.Column(db.Float, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
