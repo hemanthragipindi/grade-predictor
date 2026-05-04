@@ -109,37 +109,46 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
     app = create_app()
 
-    # Database Synchronization and Migrations
+    # Database Synchronization and Migrations with Retry Logic
     with app.app_context():
-        try:
-            db.create_all()
-            inspector = inspect(db.engine)
-            
-            # Migration Helpers
-            def add_column(table, column, type_str):
-                try:
-                    cols = [c['name'] for c in inspector.get_columns(table)]
-                    if column not in cols:
-                        # Fix for Postgres compatibility
-                        if os.getenv('RENDER') and 'DATETIME' in type_str.upper():
-                            type_str = type_str.upper().replace('DATETIME', 'TIMESTAMP')
-                        
-                        db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {type_str};"))
-                        db.session.commit()
-                        print(f"Migration: Added {column} to {table}")
-                except Exception as e:
-                    print(f"Column {column} migration skipped: {e}")
-                    db.session.rollback()
+        import time
+        max_retries = 5
+        for i in range(max_retries):
+            try:
+                db.create_all()
+                inspector = inspect(db.engine)
+                
+                # Migration Helpers
+                def add_column(table, column, type_str):
+                    try:
+                        cols = [c['name'] for c in inspector.get_columns(table)]
+                        if column not in cols:
+                            # Fix for Postgres compatibility
+                            if os.getenv('RENDER') and 'DATETIME' in type_str.upper():
+                                type_str = type_str.upper().replace('DATETIME', 'TIMESTAMP')
+                            
+                            db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {type_str};"))
+                            db.session.commit()
+                            print(f"Migration: Added {column} to {table}")
+                    except Exception as e:
+                        print(f"Column {column} migration skipped: {e}")
+                        db.session.rollback()
 
-            if 'ca_marks' in inspector.get_table_names():
-                add_column('ca_marks', 'weight', 'FLOAT DEFAULT 0.0')
-            if 'users' in inspector.get_table_names():
-                add_column('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
-            if 'cloud_files' in inspector.get_table_names():
-                add_column('cloud_files', 'public_id', 'VARCHAR(255)')
-        except Exception as db_e:
-            print(f"Database Init Warning: {db_e}")
-            # Don't crash the whole app if migrations fail, as long as app can start
+                if 'ca_marks' in inspector.get_table_names():
+                    add_column('ca_marks', 'weight', 'FLOAT DEFAULT 0.0')
+                if 'users' in inspector.get_table_names():
+                    add_column('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
+                if 'cloud_files' in inspector.get_table_names():
+                    add_column('cloud_files', 'public_id', 'VARCHAR(255)')
+                
+                print("Database initialized successfully!")
+                break
+            except Exception as db_e:
+                print(f"Database Init Attempt {i+1} failed: {db_e}")
+                if i < max_retries - 1:
+                    time.sleep(5) # Wait 5 seconds before retrying
+                else:
+                    print("Warning: Database initialization failed after multiple retries.")
 except Exception as e:
     print("CRITICAL: Application failed to start!")
     traceback.print_exc()

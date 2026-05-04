@@ -44,6 +44,38 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
+  Future<bool> register(String name, String email, String mobile, String password) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _api.dio.post('/register', data: {
+        'name': name,
+        'email': email,
+        'mobile': mobile,
+        'password': password,
+      });
+
+      if (response.data['success']) {
+        final token = response.data['token'];
+        await _storage.write(key: 'jwt_token', value: token);
+        _user = response.data['user'];
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _error = response.data['message'] ?? 'Registration failed';
+      }
+    } catch (e) {
+      _error = 'Connection error. Please try again.';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
+  }
+
   Future<void> logout() async {
     await _storage.delete(key: 'jwt_token');
     _user = null;

@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -24,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue.shade900, Colors.blue.shade600],
+            colors: [Colors.blue.shade900, Colors.blue.shade700],
           ),
         ),
         child: Center(
@@ -37,13 +39,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.school, size: 64, color: Colors.blue),
+                    const Icon(Icons.person_add, size: 64, color: Colors.blue),
                     const SizedBox(height: 16),
                     const Text(
-                      'Nexora Platform',
+                      'Create Account',
                       style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        prefixIcon: const Icon(Icons.person),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email Address',
+                        prefixIcon: const Icon(Icons.email),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: _mobileController,
                       decoration: InputDecoration(
@@ -62,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     if (auth.error != null)
                       Text(auth.error!, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
@@ -73,7 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: auth.isLoading
                             ? null
                             : () async {
-                                final success = await auth.login(
+                                final success = await auth.register(
+                                  _nameController.text,
+                                  _emailController.text,
                                   _mobileController.text,
                                   _passwordController.text,
                                 );
@@ -89,51 +111,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: auth.isLoading
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Sign In', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            : const Text('Register', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: Colors.grey.shade400)),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text('OR', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(child: Divider(color: Colors.grey.shade400)),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          // TODO: Implement Google Sign-In
-                        },
-                        icon: Image.network('https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png', height: 24),
-                        label: const Text('Sign in with Google', style: TextStyle(fontSize: 16, color: Colors.black87)),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey.shade300),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     TextButton(
-                      onPressed: () => Navigator.pushNamed(context, '/register'),
-                      child: RichText(
-                        text: TextSpan(
-                          text: "Don't have an account? ",
-                          style: TextStyle(color: Colors.grey.shade600),
-                          children: [
-                            TextSpan(
-                              text: 'Register',
-                              style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Already have an account? Sign In'),
                     ),
                   ],
                 ),
