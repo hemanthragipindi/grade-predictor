@@ -1,4 +1,8 @@
+import sys
 import os
+# Add the current directory to sys.path to resolve internal imports
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import datetime
 import logging
 import traceback
@@ -99,12 +103,6 @@ def create_app(config_name='dev'):
         }), 500
 
     return app
-
-import traceback
-import sys
-
-# Add current directory to path to ensure imports work correctly
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     app = create_app()
