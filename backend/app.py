@@ -1,5 +1,8 @@
 import sys
 import os
+
+# Essential Environment Tweaks
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Add the current directory to sys.path to resolve internal imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
