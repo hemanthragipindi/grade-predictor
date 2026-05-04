@@ -63,58 +63,59 @@ class CourseMatrixScreen extends StatelessWidget {
       },
       child: Card(
         elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        subject['subject_code'] ?? 'CODE',
-                        style: TextStyle(color: Colors.blue.shade800, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        subject['subject_name'] ?? 'Subject Name',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subject['subject_code'] ?? 'CODE',
+                          style: TextStyle(color: Colors.blue.shade800, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          subject['subject_name'] ?? 'Subject Name',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: riskColor),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: riskColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: riskColor),
+                    ),
+                    child: Text(
+                      'Risk: ${risk.toStringAsFixed(0)}%',
+                      style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
                   ),
-                  child: Text(
-                    'Risk: ${risk.toStringAsFixed(0)}%',
-                    style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildInfoColumn('Credits', '${subject['credits'] ?? '0'}', Icons.layers),
-                _buildInfoColumn('Priority', priority, Icons.priority_high, 
-                  color: priority == 'High' ? Colors.red : Colors.blue),
-                _buildInfoColumn('Target', '${subject['target_grade'] ?? 'A'}', Icons.track_changes),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildImpactBar(subject['gpa_sensitivity'] ?? 0.5),
-          ],
+                ],
+              ),
+              const Divider(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildInfoColumn('Credits', '${subject['credits'] ?? '0'}', Icons.layers),
+                  _buildInfoColumn('Priority', priority, Icons.priority_high, 
+                    color: priority == 'High' ? Colors.red : Colors.blue),
+                  _buildInfoColumn('Target', '${subject['target_grade'] ?? 'A'}', Icons.track_changes),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildImpactBar(subject['gpa_sensitivity'] ?? 0.5),
+            ],
+          ),
         ),
       ),
     );
