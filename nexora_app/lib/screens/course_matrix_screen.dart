@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'subject_detail_screen.dart';
 
 class CourseMatrixScreen extends StatelessWidget {
   const CourseMatrixScreen({super.key});
@@ -51,8 +52,17 @@ class CourseMatrixScreen extends StatelessWidget {
     final String priority = subject['priority'] ?? 'Medium';
     final Color riskColor = risk > 70 ? Colors.red : (risk > 30 ? Colors.orange : Colors.green);
 
-    return Card(
-      elevation: 4,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SubjectDetailScreen(subject: subject),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 4,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
