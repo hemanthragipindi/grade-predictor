@@ -18,9 +18,15 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    # Use environment variable, with a fallback to avoid startup crash
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+    
+    if SQLALCHEMY_DATABASE_URI:
+        if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+            SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+    else:
+        # Fallback to local sqlite to prevent RuntimeError
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/prod_fallback.db'
 
 config_by_name = {
     'dev': DevelopmentConfig,
