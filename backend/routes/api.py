@@ -18,7 +18,7 @@ api_bp = Blueprint('api', __name__)
 @api_bp.route("/login", methods=["POST"])
 def api_login():
     data = request.get_json()
-    identifier = data.get("identifier")
+    identifier = data.get("identifier") or data.get("mobile")
     password = data.get("password")
     
     clean_mobile = re.sub(r'\D', '', identifier) if identifier else ""
