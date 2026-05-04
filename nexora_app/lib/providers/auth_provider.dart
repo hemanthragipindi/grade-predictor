@@ -87,8 +87,9 @@ class AuthProvider extends ChangeNotifier {
     if (token != null) {
       try {
         final response = await _api.dio.get('/dashboard');
-        if (response.statusCode == 200) {
-          _user = response.data['user'];
+        if (response.data['success']) {
+          // Merge dashboard data into user profile
+          _user = response.data['data'];
         }
       } catch (e) {
         await logout();

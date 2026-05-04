@@ -37,7 +37,15 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildStatCard(
               context,
-              'Current GPA',
+              'Academic Standing',
+              '${user?['gpa_tier'] ?? 'Standard'}',
+              Icons.stars,
+              Colors.amber.shade700,
+            ),
+            const SizedBox(height: 16),
+            _buildStatCard(
+              context,
+              'Current CGPA',
               '${user?['cgpa'] ?? '0.0'}',
               Icons.trending_up,
               Colors.green,
@@ -45,10 +53,10 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildStatCard(
               context,
-              'Academic Risk',
-              '${user?['risk_level'] ?? 'Low'}',
+              'High Risk Subjects',
+              '${user?['high_risk_count'] ?? '0'}',
               Icons.warning_amber_rounded,
-              Colors.orange,
+              Colors.red,
             ),
             const SizedBox(height: 32),
             const Text(
