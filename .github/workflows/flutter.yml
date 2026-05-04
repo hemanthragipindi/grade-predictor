@@ -33,7 +33,9 @@ jobs:
           echo "FLUTTER_DIR=$DIR" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter clean
+          flutter pub get
         working-directory: ${{ env.FLUTTER_DIR }}
 
       - name: Build APK
