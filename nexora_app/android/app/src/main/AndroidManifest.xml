@@ -5,8 +5,7 @@
 
     <application
         android:label="Nexora Platform"
-        android:usesCleartextTraffic="true"
-        android:icon="@mipmap/ic_launcher">
+        android:usesCleartextTraffic="true">
         
         <meta-data
             android:name="flutterEmbedding"
