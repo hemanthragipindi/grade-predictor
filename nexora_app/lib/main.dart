@@ -6,6 +6,10 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/course_matrix_screen.dart';
+import 'screens/study_tracker_screen.dart';
+import 'screens/preparation_screen.dart';
+import 'screens/assistant_screen.dart';
 
 void main() {
   runApp(
@@ -37,6 +41,10 @@ class NexoraApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/matrix': (context) => const CourseMatrixScreen(),
+        '/tracker': (context) => const StudyTrackerScreen(),
+        '/prep': (context) => const PreparationScreen(),
+        '/assistant': (context) => const AssistantScreen(),
       },
     );
   }

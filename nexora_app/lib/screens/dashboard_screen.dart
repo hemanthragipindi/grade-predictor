@@ -22,6 +22,11 @@ class DashboardScreen extends StatelessWidget {
           )
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/assistant'),
+        backgroundColor: Colors.blue.shade900,
+        child: const Icon(Icons.psychology, color: Colors.white),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -78,6 +83,14 @@ class DashboardScreen extends StatelessWidget {
                 _buildActionItem(context, 'Course Matrix', Icons.table_chart, Colors.purple),
               ],
             ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _buildActionItem(context, 'Study Tracker', Icons.calendar_today, Colors.orange),
+                const SizedBox(width: 16),
+                _buildActionItem(context, 'Preparation', Icons.checklist, Colors.teal),
+              ],
+            ),
           ],
         ),
       ),
@@ -113,8 +126,15 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildActionItem(BuildContext context, String title, IconData icon, Color color) {
     return Expanded(
       child: InkWell(
-        onTap: () {}, // Navigate to specific modules
-        child: Container(
+        onTap: () {
+          if (title == 'Course Matrix') {
+            Navigator.pushNamed(context, '/matrix');
+          } else if (title == 'Study Tracker') {
+            Navigator.pushNamed(context, '/tracker');
+          } else if (title == 'Preparation') {
+            Navigator.pushNamed(context, '/prep');
+          }
+        },
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
