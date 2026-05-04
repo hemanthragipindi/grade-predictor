@@ -119,4 +119,5 @@ if __name__ == "__main__":
     if not os.path.exists(instance_path):
         os.makedirs(instance_path)
     
+    print("Nexora Backend starting up...")
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
