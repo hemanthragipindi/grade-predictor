@@ -110,16 +110,24 @@ with app.app_context():
         
         # Migration Helpers
         def add_column(table, column, type_str):
-            cols = [c['name'] for c in inspector.get_columns(table)]
-            if column not in cols:
-                db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {type_str};"))
-                db.session.commit()
-                logger.info(f"Migration: Added {column} to {table}")
+            try:
+                cols = [c['name'] for c in inspector.get_columns(table)]
+                if column not in cols:
+                    # Fix for Postgres compatibility
+                    if os.getenv('RENDER') and 'DATETIME' in type_str.upper():
+                        type_str = type_str.upper().replace('DATETIME', 'TIMESTAMP')
+                    
+                    db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {type_str};"))
+                    db.session.commit()
+                    logger.info(f"Migration: Added {column} to {table}")
+            except Exception as e:
+                logger.warning(f"Column {column} migration skipped: {e}")
+                db.session.rollback()
 
         if 'ca_marks' in inspector.get_table_names():
             add_column('ca_marks', 'weight', 'FLOAT DEFAULT 0.0')
         if 'users' in inspector.get_table_names():
-            add_column('users', 'created_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP')
+            add_column('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
         if 'cloud_files' in inspector.get_table_names():
             add_column('cloud_files', 'public_id', 'VARCHAR(255)')
             
