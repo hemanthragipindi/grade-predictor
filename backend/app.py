@@ -102,6 +102,10 @@ def create_app(config_name='dev'):
             "message": str(e) if not os.getenv('RENDER') else "Contact Support"
         }), 500
 
+    @app.route('/health')
+    def health_check():
+        return jsonify({"status": "OK", "timestamp": datetime.datetime.now().isoformat()}), 200
+
     return app
 
 try:

@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.nexora_app">
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="nexora_app">
+        android:label="Nexora Platform"
+        android:usesCleartextTraffic="true"
         
         <meta-data
             android:name="flutterEmbedding"
