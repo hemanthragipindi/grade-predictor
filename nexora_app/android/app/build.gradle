@@ -19,9 +19,6 @@ android {
     compileSdkVersion 34
     namespace "com.example.nexora_app"
 
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
 
     defaultConfig {
         applicationId "com.example.nexora_app"
