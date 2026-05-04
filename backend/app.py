@@ -100,40 +100,51 @@ def create_app(config_name='dev'):
 
     return app
 
-app = create_app()
+import traceback
+import sys
 
-# Auto-Migrations logic
-with app.app_context():
-    try:
-        db.create_all()
-        inspector = inspect(db.engine)
-        
-        # Migration Helpers
-        def add_column(table, column, type_str):
-            try:
-                cols = [c['name'] for c in inspector.get_columns(table)]
-                if column not in cols:
-                    # Fix for Postgres compatibility
-                    if os.getenv('RENDER') and 'DATETIME' in type_str.upper():
-                        type_str = type_str.upper().replace('DATETIME', 'TIMESTAMP')
-                    
-                    db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {type_str};"))
-                    db.session.commit()
-                    logger.info(f"Migration: Added {column} to {table}")
-            except Exception as e:
-                logger.warning(f"Column {column} migration skipped: {e}")
-                db.session.rollback()
+# Add current directory to path to ensure imports work correctly
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-        if 'ca_marks' in inspector.get_table_names():
-            add_column('ca_marks', 'weight', 'FLOAT DEFAULT 0.0')
-        if 'users' in inspector.get_table_names():
-            add_column('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
-        if 'cloud_files' in inspector.get_table_names():
-            add_column('cloud_files', 'public_id', 'VARCHAR(255)')
+try:
+    app = create_app()
+
+    # Database Synchronization and Migrations
+    with app.app_context():
+        try:
+            db.create_all()
+            inspector = inspect(db.engine)
             
-    except Exception as e:
-        logger.error(f"Migration Failure: {e}")
-        db.session.rollback()
+            # Migration Helpers
+            def add_column(table, column, type_str):
+                try:
+                    cols = [c['name'] for c in inspector.get_columns(table)]
+                    if column not in cols:
+                        # Fix for Postgres compatibility
+                        if os.getenv('RENDER') and 'DATETIME' in type_str.upper():
+                            type_str = type_str.upper().replace('DATETIME', 'TIMESTAMP')
+                        
+                        db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {type_str};"))
+                        db.session.commit()
+                        print(f"Migration: Added {column} to {table}")
+                except Exception as e:
+                    print(f"Column {column} migration skipped: {e}")
+                    db.session.rollback()
+
+            if 'ca_marks' in inspector.get_table_names():
+                add_column('ca_marks', 'weight', 'FLOAT DEFAULT 0.0')
+            if 'users' in inspector.get_table_names():
+                add_column('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
+            if 'cloud_files' in inspector.get_table_names():
+                add_column('cloud_files', 'public_id', 'VARCHAR(255)')
+        except Exception as db_e:
+            print(f"Database Init Warning: {db_e}")
+            # Don't crash the whole app if migrations fail, as long as app can start
+except Exception as e:
+    print("CRITICAL: Application failed to start!")
+    traceback.print_exc()
+    # Still raise the error so Render knows it failed
+    raise e
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
